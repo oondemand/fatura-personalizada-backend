@@ -1,0 +1,67 @@
+# Estágio 1: Builder
+FROM node:20 AS builder
+
+WORKDIR /app
+
+# Copiar os arquivos package.json e package-lock.json da raiz do projeto
+COPY package*.json ./
+
+# Instalar apenas as dependências de produção
+RUN npm install --production
+
+# Copiar o diretório 'src' e os arquivos necessários da raiz do projeto
+COPY src ./src
+
+# Estágio 2: Produção
+FROM node:20
+
+# Instale as bibliotecas necessárias para o Puppeteer
+RUN apt-get update && \
+    apt-get install -y \
+        libnss3 \
+        libgconf-2-4 \
+        libxkbcommon0 \
+        libxcomposite1 \
+        libxdamage1 \
+        libxrandr2 \
+        libasound2 \
+        libatspi2.0-0 \
+        libnspr4 \
+        libgtk-3-0 \
+        libgbm1 \
+        libpango-1.0-0 \
+        libpangocairo-1.0-0 \
+        libcups2 \
+        libdconf1 \
+        libgdk-pixbuf2.0-0 \
+        libxss1 \
+        libappindicator3-1 \
+        libxtst6 \
+        libnss3-tools \
+        fonts-liberation \
+        libu2f-udev \
+        libvulkan1 \
+        xdg-utils \
+        wget \
+        ca-certificates \
+        gnupg
+
+# Adicionar o repositório do Google Chrome e instalar o Chrome
+RUN wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | apt-key add - && \
+    sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list' && \
+    apt-get update && \
+    apt-get install -y google-chrome-stable
+
+WORKDIR /app
+
+# Copiar os arquivos do estágio de build
+COPY --from=builder /app /app
+
+# Definir variáveis de ambiente necessárias para o Puppeteer
+ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/google-chrome-stable
+
+# Expor a porta em que a aplicação será executada
+EXPOSE 4000
+
+# Comando para iniciar a aplicação
+CMD ["npm", "start"]
