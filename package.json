@@ -1,6 +1,10 @@
 {
   "name": "fatura-personalizada-backend",
+<<<<<<< HEAD
+  "version": "0.2.0",
+=======
   "version": "0.0.22",
+>>>>>>> 7dd56db7f8ad1e51d9fd183838e8aa31d46e01d4
   "main": "src/server.js",
   "scripts": {
     "release": "release-it",

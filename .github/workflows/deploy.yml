@@ -49,11 +49,11 @@ jobs:
 
       - name: Usar contexto do cluster
         run: |
-          kubectl config use-context do-sfo2-oondemand-prod
+          kubectl config use-context ${{ secrets.CLUSTER }}
 
       - name: 🚀 Substituir variáveis no deployment.yml e aplicar no cluster
         run: |
-          envsubst < infra/kubernetes/deployment.yaml 
+          envsubst < infra/kubernetes/deployment.yaml | kubectl apply -f -
 
         env:
           IMAGE_TAG: ${{ env.TAG }}
