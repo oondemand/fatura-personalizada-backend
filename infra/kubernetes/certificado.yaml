@@ -2,13 +2,13 @@ apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
   name: app-tls
-  namespace: rakuten
+  namespace: fatura-personalizada-v2
 spec:
   secretName: app-tls
   issuerRef:
     name: letsencrypt-nginx
     kind: ClusterIssuer
   dnsNames:
-    - cst.rakuten.segeti.oondemand.com.br
-    - api.rakuten.segeti.oondemand.com.br
-    - app.rakuten.segeti.oondemand.com.br
+    - api.fatura-personalizada.oondemand.com.br
+    - ai.fatura-personalizada.oondemand.com.br
+    - fatura-personalizada.oondemand.com.br

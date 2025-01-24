@@ -2,8 +2,9 @@ apiVersion: v1
 kind: Service
 metadata:
   name: fatura-personalizada-backend-service
+  namespace: fatura-personalizada-v2
 spec:
-  type: LoadBalancer
+  type: NodePort
   selector:
     app: fatura-personalizada-backend
   ports:

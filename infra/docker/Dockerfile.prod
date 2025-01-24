@@ -1,10 +1,17 @@
 # Estágio 1: Builder
 FROM node:20 AS builder
 
+# Definindo a variável de ambiente SERVICE_VERSION com o valor do argumento
+ARG SERVICE_VERSION
+# Definindo o argumento SERVICE_VERSION, que pode ser passado durante o build
+ENV SERVICE_VERSION=${SERVICE_VERSION}
+
+RUN echo "A versão da aplicação é: $SERVICE_VERSION"
+
 WORKDIR /app
 
 # Copiar os arquivos package.json e package-lock.json da raiz do projeto
-COPY package*.json ./
+COPY package*.json .
 
 # Instalar apenas as dependências de produção
 RUN npm install --production
