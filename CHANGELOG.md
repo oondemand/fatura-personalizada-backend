@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.0 (2025-01-24)
+
+### Features
+
+* update workflow ([864aac8](https://github.com/oondemand/fatura-personalizada-backend/commit/864aac8ad169ebf16f405bcbf5fc5af3eab3007a))
+
 ## 0.1.3 (2025-01-24)
 
 ## 0.1.2 (2025-01-24)
