@@ -47,7 +47,7 @@ jobs:
 
       - name: Usar contexto do cluster
         run: |
-          kubectl config use-context do-sfo2-k8s-oondemand-prod
+          kubectl config use-context ${{ secrets.CLUSTER }}
 
       - name: 🚀 Substituir variáveis no deployment.yml e aplicar no cluster
         run: |
