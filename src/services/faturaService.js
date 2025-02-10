@@ -161,7 +161,7 @@ const faturaService = {
     }
   },
 
-  getVariaveisOmie: async (authOmie, nCodOS, tenant) => {
+  getVariaveisOmie: async (authOmie, nCodOS) => {
     const os = await osService.consultarOS(authOmie, nCodOS);
     const cliente = await clienteService.consultarCliente(
       authOmie,

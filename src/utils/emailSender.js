@@ -41,6 +41,7 @@ const sendEmail = async (emailFrom, emailTo, subject, body, attachments) => {
   try {
     return await client.send(message);
   } catch (error) {
+    console.log(error);
     throw new Error("Erro ao enviar e-mail");
   }
 };
