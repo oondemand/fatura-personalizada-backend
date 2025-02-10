@@ -213,9 +213,7 @@ exports.enviarFatura = async (req, res) => {
       nome: await getConfig("email-from-nome", baseOmie.appKey, tenant),
     };
 
-    const emailCopia = await getConfig("email-copia", baseOmie.appKey, tenant);
-
-    const emails = [...req?.body?.emailList?.split(","), emailCopia];
+    const emails = [...req?.body?.emailList?.split(",")];
 
     const emailTo = emails
       .map((email) => email.trim())
