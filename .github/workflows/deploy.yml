@@ -1,4 +1,4 @@
-name: Deploy fatura personalizada-backend
+name: Deploy fatura personalizada backend
 
 on:
   pull_request:
