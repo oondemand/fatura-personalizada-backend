@@ -71,3 +71,4 @@ jobs:
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
           SENDGRID_API_KEY: ${{ secrets.SENDGRID_API_KEY }}
           EMAIL_REMETENTE: ${{ secrets.EMAIL_REMETENTE }}
+          FATURA_PERSONALIZADA_CLIENT: ${{ secrets.FATURA_PERSONALIZADA_CLIENT }}
