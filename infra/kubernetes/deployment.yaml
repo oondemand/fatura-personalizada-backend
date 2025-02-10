@@ -47,6 +47,8 @@ spec:
               value: "${SENDGRID_API_KEY}"
             - name: EMAIL_REMETENTE
               value: "${EMAIL_REMETENTE}"
+            - name: FATURA_PERSONALIZADA_CLIENT
+              value: "${FATURA_PERSONALIZADA_CLIENT}"
           resources:
             requests:
               memory: "256Mi"
