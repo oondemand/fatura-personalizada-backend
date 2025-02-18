@@ -133,12 +133,14 @@ const anexoService = {
       const listaAnexosBuffer = await Promise.all(
         listaAnexos.map(async (anexo) => {
           try {
-            const { cNomeArquivo, cLinkDownload } = await anexoService.obterAnexo(
+            const anexoOmie = await anexoService.obterAnexo(
               omieAuth,
               anexo.cTabela,
               anexo.nId,
               anexo.nIdAnexo
             );
+          
+            const { cNomeArquivo, cLinkDownload } = anexoOmie
 
             const resposta = await axios.get(cLinkDownload, { responseType: "arraybuffer" });
             const fileBuffer = Buffer.from(resposta.data);
