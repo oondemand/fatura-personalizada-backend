@@ -14,6 +14,7 @@ const Include = require("../models/include");
 const Template = require("../models/template");
 const Moeda = require("../models/moeda");
 const Configuracao = require("../models/configuracao");
+const ContaCorrenteService = require("./omie/contaCorrenteService");
 
 const faturaService = {
   gerar: async (authOmie, nCodOS, tenant) => {
@@ -78,7 +79,11 @@ const faturaService = {
       console.log(chalk.red(`Erro processamento OS ${nCodOS}`));
       console.error(error);
 
-      const etapaErro = await getConfig("omie-etapa-erro", authOmie.appKey);
+      const etapaErro = await getConfig(
+        "omie-etapa-erro",
+        authOmie.appKey,
+        tenant
+      );
       await osService.trocarEtapaOS(authOmie, nCodOS, etapaErro, `${error}`);
       console.log(`OS ${nCodOS} movida para a etapa de erro`);
     }
@@ -184,21 +189,30 @@ const faturaService = {
       authOmie.appKey,
       tenant
     );
+
     const gerarAdiantamento = await getConfig(
       "omie-adiantamento-gerar",
       authOmie.appKey,
       tenant
     );
+
     const categoriaAdiantamento = await getConfig(
       "omie-adiantamento-categoria",
       authOmie.appKey,
       tenant
     );
-    const contaCorrenteAdiantamento = await getConfig(
-      "omie-adiantamento-conta-corrente",
-      authOmie.appKey,
-      tenant
-    );
+
+    // const contaCorrenteAdiantamento = await getConfig(
+    //   "omie-adiantamento-conta-corrente",
+    //   authOmie.appKey,
+    //   tenant
+    // );
+
+    const ccAdiamentoCliente =
+      await ContaCorrenteService.obterContaAdiamentoCliente({
+        omieAuth: authOmie,
+        tenant,
+      });
 
     const novaOs = await osService.montarOsAlterada(
       authOmie,
@@ -206,9 +220,10 @@ const faturaService = {
       etapaProcessado,
       gerarAdiantamento,
       categoriaAdiantamento,
-      contaCorrenteAdiantamento,
+      ccAdiamentoCliente,
       observacao
     );
+
     await osService.alterarOS(authOmie, novaOs);
   },
 
