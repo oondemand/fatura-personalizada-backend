@@ -67,7 +67,7 @@ const atualizarConfiguracao = async (req, res) => {
   try {
     const configuracaoAtualizada = await Configuracao.findOneAndUpdate(
       { _id: req.params.id, tenant: req.tenant },
-      fieldsToUpdate,
+      { ...req.body },
       { new: true, runValidators: true }
     );
     if (!configuracaoAtualizada) {
