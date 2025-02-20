@@ -1,4 +1,6 @@
 const Configuracao = require("../models/configuracao");
+const BaseOmie = require("../models/baseOmie");
+const categoriasService = require("../services/omie/categoriasService");
 
 // Criar uma nova configuração
 const criarConfiguracao = async (req, res) => {
@@ -118,6 +120,24 @@ const listarConfiguracoesUnicas = async (req, res) => {
   }
 };
 
+const listarCategoriasOmie = async (req, res) => {
+  try {
+    const baseOmie = await BaseOmie.findOne({
+      _id: req.params.baseOmieId,
+      tenant: req.tenant,
+    });
+
+    const data = await categoriasService.listarCategorias({ baseOmie });
+
+    return res
+      .status(200)
+      .json(data?.categoria_cadastro.filter((e) => e.nao_exibir != "S"));
+  } catch (error) {
+    console.error("Erro ao listar categorias:", error.message);
+    res.status(500).json({ error: error.message });
+  }
+};
+
 module.exports = {
   criarConfiguracao,
   obterConfiguracao,
@@ -125,4 +145,5 @@ module.exports = {
   atualizarConfiguracao,
   excluirConfiguracao,
   listarConfiguracoesUnicas,
+  listarCategoriasOmie,
 };

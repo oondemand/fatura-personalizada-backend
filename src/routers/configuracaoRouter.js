@@ -9,6 +9,11 @@ router.get(
   configuracaoController.listarConfiguracoesUnicas
 );
 
+router.get(
+  "/listar-categorias-omie/:baseOmieId",
+  configuracaoController.listarCategoriasOmie
+);
+
 router.get("/:id", configuracaoController.obterConfiguracaoPorId);
 router.put("/:id", configuracaoController.atualizarConfiguracao);
 router.delete("/:id", configuracaoController.excluirConfiguracao);
