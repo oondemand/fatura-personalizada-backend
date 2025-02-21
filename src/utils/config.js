@@ -13,11 +13,11 @@ async function getConfig(codigo, appKey, tenant) {
 
     let configuracao = await Configuracoes.findOne({
       codigo,
-      baseOmie: baseOmie ? baseOmie._id : null,
+      baseOmie: baseOmie._id,
       tenant,
     });
 
-    if (!configuracao)
+    if (!configuracao || configuracao?.valor === "")
       configuracao = await Configuracoes.findOne({
         codigo,
         baseOmie: null,
