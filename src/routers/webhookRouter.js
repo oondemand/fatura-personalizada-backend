@@ -26,6 +26,9 @@ router.post("/gerar-fatura/:id", async (req, res) => {
       appKey,
       tenant
     );
+
+    console.log("Etapa gerar:", etapaGerarFatura);
+
     if (event.etapa !== etapaGerarFatura)
       return res.status(200).json({ message: "Etapa ignorada." });
 

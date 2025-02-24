@@ -1,6 +1,7 @@
 const Configuracao = require("../models/configuracao");
 const BaseOmie = require("../models/baseOmie");
 const categoriasService = require("../services/omie/categoriasService");
+const etapasService = require("../services/omie/etapasService");
 
 // Criar uma nova configuração
 const criarConfiguracao = async (req, res) => {
@@ -138,6 +139,30 @@ const listarCategoriasOmie = async (req, res) => {
   }
 };
 
+const listarEtapasOmie = async (req, res) => {
+  try {
+    const baseOmie = await BaseOmie.findOne({
+      _id: req.params.baseOmieId,
+      tenant: req.tenant,
+    });
+
+    const data = await etapasService.listarEtapasFaturamento({ baseOmie });
+
+    const etapasVendaServico = data?.cadastros?.find(
+      (e) => e.cCodOperacao == "01" && e.cDescOperacao == "Venda de Serviço"
+    );
+
+    const etapasAtivas = etapasVendaServico?.etapas.filter(
+      (e) => e.cInativo !== "S"
+    );
+
+    return res.status(200).json(etapasAtivas);
+  } catch (error) {
+    console.error("Erro ao listar categorias:", error.message);
+    res.status(500).json({ error: error.message });
+  }
+};
+
 module.exports = {
   criarConfiguracao,
   obterConfiguracao,
@@ -146,4 +171,5 @@ module.exports = {
   excluirConfiguracao,
   listarConfiguracoesUnicas,
   listarCategoriasOmie,
+  listarEtapasOmie,
 };
