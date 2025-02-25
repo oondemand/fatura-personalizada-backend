@@ -91,7 +91,6 @@ exports.clone = async (req, res) => {
         tipo: prompt.tipo,
         conteudo: prompt.conteudo,
         descricao: prompt.descricao,
-        nome: prompt.nome,
         ordem: prompt.ordem,
       });
 

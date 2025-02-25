@@ -13,11 +13,10 @@ exports.readAll = async (req, res) => {
 
 exports.update = async (req, res) => {
   const { id } = req.params;
-  const { nome, codigo, descricao, conteudo, tipo, ordem } = req.body;
+  const { codigo, descricao, conteudo, tipo, ordem } = req.body;
 
   const updateFields = {};
 
-  if (nome !== "") updateFields.nome = nome;
   if (tipo !== "") updateFields.tipo = tipo;
   if (ordem !== "") updateFields.ordem = ordem;
   updateFields.codigo = codigo;
@@ -42,19 +41,13 @@ exports.update = async (req, res) => {
 
 exports.create = async (req, res) => {
   try {
-    const { nome, codigo, descricao, conteudo, tipo, ordem, assistente } =
-      req.body;
-
-    if (!nome) {
-      return res.status(400).json({ message: "Nome é obrigatório." });
-    }
+    const { codigo, descricao, conteudo, tipo, ordem, assistente } = req.body;
 
     const ultimoPrompt = await Prompt.findOne({ assistente })
       .sort({ ordem: -1 })
       .limit(1);
 
     const newPrompt = new Prompt({
-      nome,
       codigo,
       descricao,
       conteudo,

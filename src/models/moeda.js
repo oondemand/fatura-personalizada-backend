@@ -31,8 +31,7 @@ const getCotacao = async (moeda) => {
 };
 
 const MoedaSchema = new mongoose.Schema({
-  nome: { type: String },
-  simbolo: { type: String, required: true },
+  simbolo: { type: String, unique: true, required: true },
   tipoCotacao: {
     type: String,
     enum: ["cotacao", "porcentagem", "valorFixo"],

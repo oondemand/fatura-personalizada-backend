@@ -1,12 +1,9 @@
 const mongoose = require("mongoose");
 
 const PromptSchema = new mongoose.Schema({
-  nome: {
-    type: String,
-    required: true,
-  },
   codigo: {
     type: String,
+    required: true,
   },
   descricao: { type: String },
   conteudo: {

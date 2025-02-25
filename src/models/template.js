@@ -1,7 +1,6 @@
 const mongoose = require("mongoose");
 
 const TemplateSchema = new mongoose.Schema({
-  nome: String,
   codigo: String,
   descricao: String,
   templateEjs: String,

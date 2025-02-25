@@ -95,7 +95,6 @@ const faturaService = {
       moedas.map(async (moeda) => {
         const cotacao = await moeda.getValor();
         return {
-          nome: moeda.nome,
           simbolo: moeda.simbolo,
           tipoCotacao: moeda.tipoCotacao,
           valor: moeda.valor,

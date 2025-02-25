@@ -3,9 +3,6 @@ const Schema = mongoose.Schema;
 
 const ConfiguracaoSchema = new Schema(
   {
-    nome: {
-      type: String,
-    },
     codigo: {
       type: String,
     },

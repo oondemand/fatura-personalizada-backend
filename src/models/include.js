@@ -1,14 +1,10 @@
 const mongoose = require("mongoose");
 
 const IncludeSchema = new mongoose.Schema({
-  nome: {
-    type: String,
+  tenant: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Tenant",
     required: true,
-  },
-  tenant: { 
-    type: mongoose.Schema.Types.ObjectId, 
-    ref: "Tenant", 
-    required: true 
   },
   codigo: {
     type: String,
@@ -30,6 +26,7 @@ const IncludeSchema = new mongoose.Schema({
   },
 });
 
-const Include = mongoose.models.Include || mongoose.model("Include", IncludeSchema);
+const Include =
+  mongoose.models.Include || mongoose.model("Include", IncludeSchema);
 
 module.exports = Include;
