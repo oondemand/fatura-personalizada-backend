@@ -17,6 +17,11 @@ const defaultBaseOmie = {
 
 const defaultConfigs = [
   {
+    codigo: "enviar-email",
+    valor: true,
+    baseOmie: null,
+  },
+  {
     codigo: "email-from",
     valor: "mirian@oondemand.com.br",
     baseOmie: null,

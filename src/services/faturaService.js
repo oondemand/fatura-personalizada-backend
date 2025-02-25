@@ -234,6 +234,17 @@ const faturaService = {
     renderedCorpo,
     tenant
   ) => {
+    const enviarEmail = await getConfig(
+      "enviar-email",
+      authOmie.appKey,
+      tenant
+    );
+
+    if (!enviarEmail) {
+      console.log("Envio de email desativado");
+      return;
+    }
+
     console.log("Enviando email");
 
     const emailFrom = {
