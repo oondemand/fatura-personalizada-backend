@@ -12,8 +12,6 @@ const criarConfiguracao = async (req, res) => {
     }
   }
 
-  console.log(body, req.body);
-
   try {
     const novaConfiguracao = new Configuracao({
       ...body,

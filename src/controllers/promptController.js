@@ -25,8 +25,6 @@ exports.update = async (req, res) => {
   updateFields.conteudo = conteudo;
   updateFields.descricao = descricao;
 
-  console.log(updateFields, req.body, req.codigo ? "tem codigo" : "não tem");
-
   try {
     const prompt = await Prompt.findByIdAndUpdate(id, updateFields, {
       new: true,
