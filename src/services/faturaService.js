@@ -246,10 +246,10 @@ const faturaService = {
 
     let emailToArray = [];
 
-    if (os.Email.cEnviarPara?.length > 0)
+    if (os?.Email?.cEnviarPara?.length > 0)
       emailToArray.push(os.Email.cEnviarPara);
-    if (cliente.email?.length > 0) emailToArray.push(cliente.email);
-    if (emailCopia?.length > 0) emailToArray.push(emailCopia);
+    if (cliente?.email?.length > 0) emailToArray.push(cliente.email);
+    if (emailCopia) emailToArray.push(emailCopia);
 
     let emailTo = emailToArray
       .map((email) => email.trim())
