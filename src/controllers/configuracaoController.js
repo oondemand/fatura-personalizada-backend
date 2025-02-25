@@ -12,8 +12,6 @@ const criarConfiguracao = async (req, res) => {
     }
   }
 
-  console.log(body, req.body);
-
   try {
     const novaConfiguracao = new Configuracao({
       ...body,
@@ -99,8 +97,6 @@ const excluirConfiguracao = async (req, res) => {
 };
 
 const listarConfiguracoesUnicas = async (req, res) => {
-  console.log("Bateu aqui", req.tenant);
-
   try {
     const todasConfiguracoes = await Configuracao.find({ tenant: req.tenant });
 
