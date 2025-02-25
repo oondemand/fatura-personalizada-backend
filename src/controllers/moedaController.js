@@ -16,6 +16,9 @@ class MoedaController {
   static async readAll(req, res) {
     try {
       const moedas = await Moeda.find({ ...req.query, tenant: req.tenant });
+
+      console.log("Moedas", moedas);
+
       const valores = await Promise.all(
         moedas.map((moeda) => moeda.getValor())
       );

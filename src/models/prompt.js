@@ -7,7 +7,6 @@ const PromptSchema = new mongoose.Schema({
   },
   codigo: {
     type: String,
-    required: true,
   },
   descricao: { type: String },
   conteudo: {

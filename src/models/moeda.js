@@ -13,10 +13,13 @@ const getCotacao = async (moeda) => {
     });
 
     const response = await axios.get(
-      `https://olinda.bcb.gov.br/olinda/servico/PTAX/versao/v1/odata/CotacaoMoedaDia(moeda=@moeda,dataCotacao=@dataCotacao)?@moeda='${moeda}'&@dataCotacao='${dataCotacao}'&$top=100&$format=json&$select=paridadeCompra,paridadeVenda,cotacaoCompra,cotacaoVenda,dataHoraCotacao,tipoBoletim`
+      `https://olinda.bcb.gov.br/olinda/servico/PTAX/versao/v1/odata/CotacaoMoedaDia(moeda=@moeda,dataCotacao=@dataCotacao)?@moeda='${moeda}'&@dataCotacao='${dataCotacao}'&$top=100&$format=json&$select=paridadeCompra,paridadeVenda,cotacaoCompra,cotacaoVenda,dataHoraCotacao,tipoBoletim`,
+      { timeout: 5000 }
     );
 
-    cotacao = response.data.value.find((cotacao) => cotacao.tipoBoletim === "Fechamento PTAX");
+    cotacao = response.data.value.find(
+      (cotacao) => cotacao.tipoBoletim === "Fechamento PTAX"
+    );
 
     // Se a cotação ainda for nula, reduza a data em 1 dia
     if (!cotacao) {
@@ -28,15 +31,19 @@ const getCotacao = async (moeda) => {
 };
 
 const MoedaSchema = new mongoose.Schema({
-  nome: { type: String, required: true },
+  nome: { type: String },
   simbolo: { type: String, required: true },
   tipoCotacao: {
     type: String,
     enum: ["cotacao", "porcentagem", "valorFixo"],
+    default: "cotacao",
+  },
+  valor: { type: Number },
+  tenant: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Tenant",
     required: true,
   },
-  valor: { type: Number, required: true },
-  tenant: { type: mongoose.Schema.Types.ObjectId, ref: "Tenant", required: true },
   status: {
     type: String,
     enum: ["ativo", "inativo", "arquivado"],

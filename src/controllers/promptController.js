@@ -18,12 +18,14 @@ exports.update = async (req, res) => {
   const updateFields = {};
 
   if (nome !== "") updateFields.nome = nome;
-  if (codigo !== "") updateFields.codigo = codigo;
   if (tipo !== "") updateFields.tipo = tipo;
   if (ordem !== "") updateFields.ordem = ordem;
+  updateFields.codigo = codigo;
 
   updateFields.conteudo = conteudo;
   updateFields.descricao = descricao;
+
+  console.log(updateFields, req.body, req.codigo ? "tem codigo" : "não tem");
 
   try {
     const prompt = await Prompt.findByIdAndUpdate(id, updateFields, {
@@ -45,10 +47,8 @@ exports.create = async (req, res) => {
     const { nome, codigo, descricao, conteudo, tipo, ordem, assistente } =
       req.body;
 
-    if (!nome || !codigo) {
-      return res
-        .status(400)
-        .json({ message: "Nome, código e conteúdo são obrigatórios." });
+    if (!nome) {
+      return res.status(400).json({ message: "Nome é obrigatório." });
     }
 
     const ultimoPrompt = await Prompt.findOne({ assistente })
