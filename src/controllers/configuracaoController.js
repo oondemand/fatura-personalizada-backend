@@ -56,8 +56,6 @@ const obterConfiguracaoPorId = async (req, res) => {
 
 // Atualizar uma configuração por ID
 const atualizarConfiguracao = async (req, res) => {
-  console.log(req.body);
-
   const fieldsToUpdate = {};
   for (const key in req.body) {
     if (req.body[key] !== "") {
