@@ -100,8 +100,8 @@ const emailConvidarUsuario = async ({ email, nome, url }) => {
     const assunto = "Acesso Liberado";
 
     const corpo = `<h1>Olá, ${nome}!</h1>
-    <p>Segue o link para acessar o app fatura personalizada:</p>
-    <a href="${url}">Acessar fatura personalizada</a>`;
+    <p>Segue o link para acessar o app doc custom:</p>
+    <a href="${url}">Acessar doc custom</a>`;
 
     return await enviarEmail(emailFrom, emailTo, assunto, corpo);
   } catch (error) {
