@@ -1,6 +1,6 @@
 # Definir a versão da imagem, nome da imagem e o URL do registro de container
 $VERSION = "0.0.23"
-$IMAGE_NAME = "fatura-personalizada-backend"
+$IMAGE_NAME = "doc-custom-backend"
 $REGISTRY_URL = "registry.digitalocean.com/oondemand"
 
 # Verificar se $IMAGE_NAME está em minúsculas, já que Docker exige isso

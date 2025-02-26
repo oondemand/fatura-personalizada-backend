@@ -1,8 +1,8 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: fatura-personalizada-backend-ingress
-  namespace: fatura-personalizada-v2
+  name: doc-custom-backend-ingress
+  namespace: doc-custom
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-nginx
     nginx.ingress.kubernetes.io/use-regex: "true"
@@ -12,16 +12,16 @@ spec:
   ingressClassName: nginx
   tls:
     - hosts:
-        - api.fatura-personalizada.oondemand.com.br
+        - api.doc-custom.oondemand.com.br
       secretName: app-tls
   rules:
-    - host: api.fatura-personalizada.oondemand.com.br
+    - host: api.doc-custom.oondemand.com.br
       http:
         paths:
           - path: /(.*)
             pathType: ImplementationSpecific
             backend:
               service:
-                name: fatura-personalizada-backend-service
+                name: doc-custom-backend-service
                 port:
                   number: 80

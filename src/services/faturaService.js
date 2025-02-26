@@ -95,7 +95,6 @@ const faturaService = {
       moedas.map(async (moeda) => {
         const cotacao = await moeda.getValor();
         return {
-          nome: moeda.nome,
           simbolo: moeda.simbolo,
           tipoCotacao: moeda.tipoCotacao,
           valor: moeda.valor,
@@ -235,6 +234,17 @@ const faturaService = {
     renderedCorpo,
     tenant
   ) => {
+    const enviarEmail = await getConfig(
+      "enviar-email",
+      authOmie.appKey,
+      tenant
+    );
+
+    if (!enviarEmail) {
+      console.log("Envio de email desativado");
+      return;
+    }
+
     console.log("Enviando email");
 
     const emailFrom = {

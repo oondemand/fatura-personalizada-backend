@@ -3,17 +3,16 @@ const Template = require("../models/template");
 class TemplateController {
   // Criar um novo Template
   static async create(req, res) {
-    const { nome, codigo, descricao, templateEjs, status, omieVar } = req.body;
+    const { codigo, descricao, templateEjs, status, omieVar } = req.body;
 
     // Validação básica dos campos obrigatórios
-    if (!nome || !codigo || !templateEjs || !status) {
+    if (!codigo || !templateEjs || !status) {
       return res.status(400).json({
-        message: "Nome, Código, TemplateEJS e Status são obrigatórios.",
+        message: "Código, TemplateEJS e Status são obrigatórios.",
       });
     }
 
     const template = new Template({
-      nome,
       codigo,
       descricao,
       templateEjs,
@@ -66,18 +65,17 @@ class TemplateController {
 
   // Atualizar um Template por ID
   static async update(req, res) {
-    const { nome, codigo, descricao, templateEjs, status, omieVar } = req.body;
+    const { codigo, descricao, templateEjs, status, omieVar } = req.body;
 
     // Validação básica dos campos obrigatórios
-    if (!nome && !codigo && !templateEjs && !status) {
+    if (!codigo && !templateEjs && !status) {
       return res.status(400).json({
         message:
-          "Pelo menos um dos campos Nome, Código, TemplateEJS ou Status deve ser fornecido.",
+          "Pelo menos um dos campos  Código, TemplateEJS ou Status deve ser fornecido.",
       });
     }
 
     const updateFields = {};
-    if (nome) updateFields.nome = nome;
     if (codigo) updateFields.codigo = codigo;
     if (descricao) updateFields.descricao = descricao;
     if (templateEjs) updateFields.templateEjs = templateEjs;
