@@ -1,6 +1,6 @@
 openapi: 3.1.0
 info:
-  title: Fatura Personalizada API
+  title: Doc custom API
   description: API para gerar Faturas Personalizadas integrado a OS do Omie
   version: 0.0.19
   contact:
@@ -8,7 +8,7 @@ info:
     email: fabio@oondemand.com.br
 
 servers:
-  - url: https://api.oondemand.com.br/fatura-personalizada
+  - url: https://api.oondemand.com.br/doc-custom
     description: Servidor de Produção
 
 components:
@@ -137,7 +137,7 @@ paths:
       summary: Verificar o status do serviço e a conexão com o MongoDB
       operationId: getStatus
       responses:
-        '200':
+        "200":
           description: Status do serviço
           content:
             application/json:
@@ -154,7 +154,7 @@ paths:
       summary: Obter o esquema OpenAPI em formato JSON
       operationId: getOpenApi
       responses:
-        '200':
+        "200":
           description: Esquema OpenAPI em formato JSON
           content:
             application/json:
@@ -218,7 +218,7 @@ paths:
                 - email
                 - senha
       responses:
-        '200':
+        "200":
           description: Token JWT gerado
           content:
             application/json:
@@ -227,7 +227,7 @@ paths:
                 properties:
                   token:
                     type: string
-        '401':
+        "401":
           description: Credenciais inválidas
 
   /usuarios:
@@ -237,14 +237,14 @@ paths:
       security:
         - BearerAuth: []
       responses:
-        '200':
+        "200":
           description: Lista de usuários
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Usuario'
+                  $ref: "#/components/schemas/Usuario"
     post:
       summary: Registrar um novo usuário
       operationId: registrarUsuario
@@ -256,9 +256,9 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Usuario'
+              $ref: "#/components/schemas/Usuario"
       responses:
-        '201':
+        "201":
           description: Usuário registrado com sucesso
 
   /usuarios/{id}:
@@ -274,13 +274,13 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: Usuário encontrado
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Usuario'
-        '404':
+                $ref: "#/components/schemas/Usuario"
+        "404":
           description: Usuário não encontrado
     put:
       summary: Atualizar um usuário pelo ID
@@ -299,11 +299,11 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Usuario'
+              $ref: "#/components/schemas/Usuario"
       responses:
-        '200':
+        "200":
           description: Usuário atualizado com sucesso
-        '404':
+        "404":
           description: Usuário não encontrado
 
   /configuracoes:
@@ -313,14 +313,14 @@ paths:
       security:
         - BearerAuth: []
       responses:
-        '200':
+        "200":
           description: Lista de configurações
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Configuracao'
+                  $ref: "#/components/schemas/Configuracao"
     post:
       summary: Criar uma nova configuração
       operationId: criarConfiguracao
@@ -332,9 +332,9 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Configuracao'
+              $ref: "#/components/schemas/Configuracao"
       responses:
-        '201':
+        "201":
           description: Configuração criada com sucesso
 
   /configuracoes/{id}:
@@ -350,13 +350,13 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: Configuração encontrada
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Configuracao'
-        '404':
+                $ref: "#/components/schemas/Configuracao"
+        "404":
           description: Configuração não encontrada
     put:
       summary: Atualizar uma configuração pelo ID
@@ -375,11 +375,11 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Configuracao'
+              $ref: "#/components/schemas/Configuracao"
       responses:
-        '200':
+        "200":
           description: Configuração atualizada com sucesso
-        '404':
+        "404":
           description: Configuração não encontrada
     delete:
       summary: Deletar uma configuração pelo ID
@@ -393,9 +393,9 @@ paths:
           schema:
             type: string
       responses:
-        '204':
+        "204":
           description: Configuração deletada com sucesso
-        '404':
+        "404":
           description: Configuração não encontrada
 
   /base-omies:
@@ -405,14 +405,14 @@ paths:
       security:
         - BearerAuth: []
       responses:
-        '200':
+        "200":
           description: Lista de bases Omie
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/BaseOmie'
+                  $ref: "#/components/schemas/BaseOmie"
     post:
       summary: Criar uma nova base Omie
       operationId: criarBaseOmie
@@ -424,9 +424,9 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/BaseOmie'
+              $ref: "#/components/schemas/BaseOmie"
       responses:
-        '201':
+        "201":
           description: Base Omie criada com sucesso
 
   /base-omies/{id}:
@@ -442,13 +442,13 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: Base Omie encontrada
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BaseOmie'
-        '404':
+                $ref: "#/components/schemas/BaseOmie"
+        "404":
           description: Base Omie não encontrada
     patch:
       summary: Atualizar uma base Omie pelo ID
@@ -467,11 +467,11 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/BaseOmie'
+              $ref: "#/components/schemas/BaseOmie"
       responses:
-        '200':
+        "200":
           description: Base Omie atualizada com sucesso
-        '404':
+        "404":
           description: Base Omie não encontrada
 
   /moedas:
@@ -481,14 +481,14 @@ paths:
       security:
         - BearerAuth: []
       responses:
-        '200':
+        "200":
           description: Lista de moedas
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Moeda'
+                  $ref: "#/components/schemas/Moeda"
     post:
       summary: Criar uma nova moeda
       operationId: criarMoeda
@@ -500,9 +500,9 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Moeda'
+              $ref: "#/components/schemas/Moeda"
       responses:
-        '201':
+        "201":
           description: Moeda criada com sucesso
 
   /moedas/{id}:
@@ -518,13 +518,13 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: Moeda encontrada
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Moeda'
-        '404':
+                $ref: "#/components/schemas/Moeda"
+        "404":
           description: Moeda não encontrada
     patch:
       summary: Atualizar uma moeda pelo ID
@@ -543,11 +543,11 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Moeda'
+              $ref: "#/components/schemas/Moeda"
       responses:
-        '200':
+        "200":
           description: Moeda atualizada com sucesso
-        '404':
+        "404":
           description: Moeda não encontrada
 
   /templates:
@@ -557,14 +557,14 @@ paths:
       security:
         - BearerAuth: []
       responses:
-        '200':
+        "200":
           description: Lista de templates
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Template'
+                  $ref: "#/components/schemas/Template"
     post:
       summary: Criar um novo template
       operationId: criarTemplate
@@ -576,9 +576,9 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Template'
+              $ref: "#/components/schemas/Template"
       responses:
-        '201':
+        "201":
           description: Template criado com sucesso
 
   /templates/{id}:
@@ -594,13 +594,13 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: Template encontrado
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Template'
-        '404':
+                $ref: "#/components/schemas/Template"
+        "404":
           description: Template não encontrado
     patch:
       summary: Atualizar um template pelo ID
@@ -619,11 +619,11 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Template'
+              $ref: "#/components/schemas/Template"
       responses:
-        '200':
+        "200":
           description: Template atualizado com sucesso
-        '404':
+        "404":
           description: Template não encontrado
 
   /includes:
@@ -633,14 +633,14 @@ paths:
       security:
         - BearerAuth: []
       responses:
-        '200':
+        "200":
           description: Lista de includes
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Include'
+                  $ref: "#/components/schemas/Include"
     post:
       summary: Criar um novo include
       operationId: criarInclude
@@ -652,9 +652,9 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Include'
+              $ref: "#/components/schemas/Include"
       responses:
-        '201':
+        "201":
           description: Include criado com sucesso
 
   /includes/{id}:
@@ -670,13 +670,13 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: Include encontrado
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Include'
-        '404':
+                $ref: "#/components/schemas/Include"
+        "404":
           description: Include não encontrado
     patch:
       summary: Atualizar um include pelo ID
@@ -695,13 +695,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Include'
+              $ref: "#/components/schemas/Include"
       responses:
-        '200':
+        "200":
           description: Include atualizado com sucesso
-        '404':
+        "404":
           description: Include não encontrado
-    
+
   /webhooks/gerar-invoice:
     post:
       summary: Webhook para gerar invoice
@@ -721,11 +721,11 @@ paths:
                 ping:
                   type: string
       responses:
-        '200':
+        "200":
           description: Webhook processado com sucesso
-        '400':
+        "400":
           description: Dados incompletos
-        '500':
+        "500":
           description: Erro ao processar o webhook
 
   /logs/rastreabilidade:
@@ -748,7 +748,7 @@ paths:
             type: integer
           description: Número de registros por página
       responses:
-        '200':
+        "200":
           description: Lista de logs de rastreabilidade
           content:
             application/json:
@@ -764,6 +764,6 @@ paths:
                   logs:
                     type: array
                     items:
-                      $ref: '#/components/schemas/Log'
-        '500':
+                      $ref: "#/components/schemas/Log"
+        "500":
           description: Erro ao buscar logs

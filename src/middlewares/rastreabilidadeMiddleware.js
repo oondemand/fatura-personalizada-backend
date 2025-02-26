@@ -7,8 +7,6 @@ const rastreabilidadeMiddleware = async (req, res, next) => {
   }
 
   // Extrair informações da requisição
-  console.log("Usuário autenticado:", req.usuario);
-
   const usuarioId = req.usuario ? req.usuario._id : null; // Pega o ID do usuário autenticado pelo token
   const endpoint = req.originalUrl; // A URL completa
   const metodo = req.method; // O método HTTP (GET, POST, etc.)

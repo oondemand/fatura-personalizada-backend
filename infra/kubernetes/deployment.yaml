@@ -1,20 +1,20 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: fatura-personalizada-backend
-  namespace: fatura-personalizada-v2
+  name: doc-custom-backend
+  namespace: doc-custom
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: fatura-personalizada-backend
+      app: doc-custom-backend
   template:
     metadata:
       labels:
-        app: fatura-personalizada-backend
+        app: doc-custom-backend
     spec:
       containers:
-        - name: fatura-personalizada-backend-container
+        - name: doc-custom-backend-container
           image: ghcr.io/oondemand/fatura-personalizada-backend:${IMAGE_TAG}
           ports:
             - containerPort: 4000

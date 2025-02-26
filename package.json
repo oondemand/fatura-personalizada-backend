@@ -1,5 +1,5 @@
 {
-  "name": "fatura-personalizada-backend",
+  "name": "doc-custom-backend",
   "version": "0.2.11",
   "main": "src/server.js",
   "scripts": {
