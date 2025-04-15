@@ -11,6 +11,10 @@ const assistenteSchema = new mongoose.Schema(
       type: String,
       trim: true,
     },
+    modelo: {
+      type: String,
+      trim: true,
+    },
   },
   { timestamps: true }
 );
