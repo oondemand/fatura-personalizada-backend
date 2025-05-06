@@ -7,6 +7,6 @@ const authCstMiddleware = require("../middlewares/cst-auth");
 const router = express.Router();
 
 router.get("/", authCstMiddleware, assistenteController.readAllCST);
-router.get("/:id/prompts", authCstMiddleware, promptController.readAll);
+router.get("/prompts", authCstMiddleware, promptController.readAll);
 
 module.exports = router;
