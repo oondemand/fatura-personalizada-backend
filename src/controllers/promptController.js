@@ -13,11 +13,12 @@ exports.readAll = async (req, res) => {
 
 exports.update = async (req, res) => {
   const { id } = req.params;
-  const { codigo, descricao, conteudo, tipo, ordem } = req.body;
+  const { codigo, descricao, conteudo, tipo, ordem, tipoConteudo } = req.body;
 
   const updateFields = {};
 
   if (tipo !== "") updateFields.tipo = tipo;
+  if (tipoConteudo !== "") updateFields.tipoConteudo = tipoConteudo;
   if (ordem !== "") updateFields.ordem = ordem;
   updateFields.codigo = codigo;
 

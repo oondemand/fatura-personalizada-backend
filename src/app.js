@@ -27,6 +27,7 @@ app.use("/open-api", (req, res) => {
 });
 
 app.use("/auth", require("./routers/authRouter")); // Rotas de autenticação (login, etc.)
+app.use("/cst/assistentes", require("./routers/assistenteCSTRouter"));
 
 // Rotas dos webhooks
 app.use("/webhooks", require("./routers/webhookRouter"));
