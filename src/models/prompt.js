@@ -19,6 +19,11 @@ const PromptSchema = new mongoose.Schema({
     ref: "Assistente",
     required: true,
   },
+  tipoConteudo: {
+    type: String,
+    enum: ["texto", "arquivo", "ejx", "objetoJson"],
+    default: "texto",
+  },
   ordem: { type: Number },
 });
 
