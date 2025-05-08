@@ -106,7 +106,6 @@ exports.clone = async (req, res) => {
 exports.readAllCST = async (req, res) => {
   try {
     const assistentes = await Assistente.find();
-
     res.json(assistentes);
   } catch (err) {
     res.status(500).json({ error: err.message });
