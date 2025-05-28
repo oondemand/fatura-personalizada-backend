@@ -26,6 +26,7 @@ class MoedaController {
       }));
       res.status(200).send(moedasComValores);
     } catch (error) {
+      console.log(error);
       res.status(500).send(error);
     }
   }

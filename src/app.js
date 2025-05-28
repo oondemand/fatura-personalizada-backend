@@ -34,9 +34,8 @@ app.use("/webhooks", require("./routers/webhookRouter"));
 
 // **Middleware de autenticação** - Aplica-se apenas às rotas que necessitam de proteção
 app.use(require("./middlewares/authMiddleware"));
-
 // **Middleware de rastreabilidade** - Aplica-se para todas rotas protegidas
-app.use(require("./middlewares/rastreabilidadeMiddleware"));
+app.use(require("./middlewares/logMiddleware"));
 
 // ** Rotas protegidas ** - Requerem autenticação
 app.use("/usuarios", require("./routers/usuarioRouter"));

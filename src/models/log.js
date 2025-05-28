@@ -32,6 +32,9 @@ const logSchema = new mongoose.Schema(
     statusResposta: {
       type: Number, // Código de status da resposta (200, 404, 500, etc.)
     },
+    tempoResposta: {
+      type: Number, // Tempo de resposta em milissegundos
+    },
   },
   {
     timestamps: true, // Adiciona campos de createdAt e updatedAt automaticamente
