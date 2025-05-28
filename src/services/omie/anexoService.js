@@ -1,5 +1,5 @@
-const axios = require("axios");
-const { promisify } = require('util');
+const axios = require("../../config/axios");
+const { promisify } = require("util");
 const { format } = require("date-fns");
 
 const { compactFile } = require("../../utils/fileHandler");
@@ -23,13 +23,24 @@ const anexoService = {
         arquivo
       );
     } catch (error) {
-      logger.error(`Erro ao incluir anexo na OS ${os.Cabecalho.cNumOS}: ${error.message}`);
-      console.error(`Erro ao incluir anexo na OS ${os.Cabecalho.cNumOS}: ${error.message}`);
+      logger.error(
+        `Erro ao incluir anexo na OS ${os.Cabecalho.cNumOS}: ${error.message}`
+      );
+      console.error(
+        `Erro ao incluir anexo na OS ${os.Cabecalho.cNumOS}: ${error.message}`
+      );
       throw error;
     }
   },
 
-  incluirAnexo: async (omieAuth, tabela, id, nomeArquivo, tipoArquivo, arquivo) => {
+  incluirAnexo: async (
+    omieAuth,
+    tabela,
+    id,
+    nomeArquivo,
+    tipoArquivo,
+    arquivo
+  ) => {
     try {
       const arquivoCompactado = await compactFile(arquivo, nomeArquivo);
 
@@ -51,20 +62,27 @@ const anexoService = {
       };
 
       const response = await apiOmie.post("geral/anexo/", body);
-      
+
       console.log("...");
       await sleep(3000);
 
       console.log("Anexo incluído com sucesso!");
 
-
       return response.data;
     } catch (error) {
-      logger.error(`Erro ao incluir anexo na tabela ${tabela} com ID ${id}: ${error.message}`);
-      console.error(`Erro ao incluir anexo na tabela ${tabela} com ID ${id}: ${error.message}`);
+      logger.error(
+        `Erro ao incluir anexo na tabela ${tabela} com ID ${id}: ${error.message}`
+      );
+      console.error(
+        `Erro ao incluir anexo na tabela ${tabela} com ID ${id}: ${error.message}`
+      );
       console.error(`URL: ${error.config?.url}`);
-      console.error(`Corpo da Requisição: ${JSON.stringify(error.config?.data)}`);
-      console.error(`Corpo da Resposta: ${JSON.stringify(error.response?.data)}`);
+      console.error(
+        `Corpo da Requisição: ${JSON.stringify(error.config?.data)}`
+      );
+      console.error(
+        `Corpo da Resposta: ${JSON.stringify(error.response?.data)}`
+      );
       console.error(`Código do Erro: ${error.code}`);
       throw error;
     }
@@ -89,8 +107,12 @@ const anexoService = {
       const response = await apiOmie.post("geral/anexo/", body);
       return response.data;
     } catch (error) {
-      logger.error(`Erro ao listar anexos na tabela ${tabela} com ID ${id}: ${error.message}`);
-      console.error(`Erro ao listar anexos na tabela ${tabela} com ID ${id}: ${error.message}`);
+      logger.error(
+        `Erro ao listar anexos na tabela ${tabela} com ID ${id}: ${error.message}`
+      );
+      console.error(
+        `Erro ao listar anexos na tabela ${tabela} com ID ${id}: ${error.message}`
+      );
       // throw error;
     }
   },
@@ -125,7 +147,11 @@ const anexoService = {
 
   listarAnexoBuffer: async (omieAuth, id) => {
     try {
-      const anexos = await anexoService.listarAnexo(omieAuth, "ordem-servico", id);
+      const anexos = await anexoService.listarAnexo(
+        omieAuth,
+        "ordem-servico",
+        id
+      );
       if (!anexos || !anexos.listaAnexos) return [];
 
       const listaAnexos = anexos.listaAnexos;
@@ -139,10 +165,12 @@ const anexoService = {
               anexo.nId,
               anexo.nIdAnexo
             );
-          
-            const { cNomeArquivo, cLinkDownload } = anexoOmie
 
-            const resposta = await axios.get(cLinkDownload, { responseType: "arraybuffer" });
+            const { cNomeArquivo, cLinkDownload } = anexoOmie;
+
+            const resposta = await axios.get(cLinkDownload, {
+              responseType: "arraybuffer",
+            });
             const fileBuffer = Buffer.from(resposta.data);
 
             return {
@@ -163,7 +191,9 @@ const anexoService = {
 
       return listaAnexosBuffer;
     } catch (error) {
-      console.error(`Erro ao listar buffers de anexos da OS ${id}: ${error.message}`);
+      console.error(
+        `Erro ao listar buffers de anexos da OS ${id}: ${error.message}`
+      );
       throw error;
     }
   },

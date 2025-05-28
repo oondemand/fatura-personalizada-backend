@@ -1,4 +1,4 @@
-const { default: axios } = require("axios");
+const axios = require("../config/axios");
 const mongoose = require("mongoose");
 
 const getCotacao = async (moeda) => {

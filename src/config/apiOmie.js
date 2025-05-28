@@ -1,6 +1,6 @@
-const axios = require('axios');
+const axios = require("../config/axios");
 
-const apiOmie = axios.create({
+const apiOmie = axios({
   baseURL: process.env.OMIE_API_URL,
   timeout: 30000, // tempo limite em milissegundos
   headers: {
