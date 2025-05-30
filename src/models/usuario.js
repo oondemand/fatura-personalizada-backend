@@ -13,8 +13,8 @@ const UsuarioSchema = new mongoose.Schema({
   nome: { type: String, required: true },
   tipo: {
     type: String,
-    enum: ["master", "admin", "padrao"],
-    default: "padrao",
+    enum: ["admin", "admin-tenant", "usuario"],
+    default: "usuario",
   },
   email: { type: String, required: true, unique: true },
   senha: { type: String, required: true },
