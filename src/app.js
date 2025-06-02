@@ -49,6 +49,7 @@ app.use("/tenants", require("./routers/tenantRouter"));
 app.use("/fatura", require("./routers/faturaRouter"));
 app.use("/assistentes", require("./routers/assistenteRouter"));
 app.use("/prompt", require("./routers/promptRouter"));
+app.use("/gatilhos", require("./routers/gatilhoRouter"));
 
 // Middleware de erro
 app.use((err, req, res, next) => {
