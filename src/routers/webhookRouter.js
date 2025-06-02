@@ -3,16 +3,20 @@ const express = require("express");
 const faturaService = require("../services/faturaService");
 const BaseOmie = require("../models/baseOmie");
 const { getConfig } = require("../utils/config");
+const Gatilho = require("../models/gatilho");
 
 const router = express.Router();
 
 router.post("/gerar-fatura/:id", async (req, res) => {
-  const tenant = req.params.id;
-
-  console.log(tenant, req.body);
+  const gatilhoId = req.params.id;
 
   try {
     const { appKey, event, ping, topic } = req.body;
+
+    const gatilho = await Gatilho.findById(gatilhoId);
+
+    if (!gatilho)
+      return res.status(404).json({ error: "Gatilho não encontrado" });
 
     // Verificar se o webhook é um ping
     if (ping === "omie") return res.status(200).json({ message: "pong" });
@@ -21,15 +25,15 @@ router.post("/gerar-fatura/:id", async (req, res) => {
     if (topic !== "OrdemServico.EtapaAlterada")
       return res.status(200).json({ message: "Tópico ignorado." });
 
-    const etapaGerarFatura = await getConfig(
-      "omie-etapa-gerar",
-      appKey,
-      tenant
-    );
+    // const etapaGerarFatura = await getConfig(
+    //   "omie-etapa-gerar",
+    //   appKey,
+    //   tenant
+    // );
 
-    console.log("Etapa gerar:", etapaGerarFatura);
+    console.log("Etapa gerar:", gatilho.etapaGeracao);
 
-    if (event.etapa !== etapaGerarFatura)
+    if (event.etapa !== gatilho.etapaGeracao)
       return res.status(200).json({ message: "Etapa ignorada." });
 
     if (!appKey || !event.idOrdemServico) {
@@ -39,7 +43,11 @@ router.post("/gerar-fatura/:id", async (req, res) => {
     }
 
     // Consultar o banco de dados para obter o appSecret
-    const baseOmie = await BaseOmie.findOne({ appKey: appKey, tenant });
+    const baseOmie = await BaseOmie.findOne({
+      appKey: appKey,
+      tenant: gatilho.tenant,
+    });
+
     if (!baseOmie)
       return res.status(404).send({ error: "AppKey não encontrada" });
 
@@ -50,7 +58,12 @@ router.post("/gerar-fatura/:id", async (req, res) => {
     };
 
     // Acionar o serviço de geração da fatura
-    faturaService.gerar(authOmie, event.idOrdemServico, tenant);
+    faturaService.gerar(
+      authOmie,
+      event.idOrdemServico,
+      gatilho.tenant,
+      gatilho
+    );
 
     res.status(200).json({ message: "Webhook recebido. Fatura sendo gerada." });
   } catch (error) {

@@ -12,7 +12,7 @@ const getCotacao = async (moeda) => {
       year: "numeric",
     });
 
-    const response = await axios.get(
+    const response = await axios({}).get(
       `https://olinda.bcb.gov.br/olinda/servico/PTAX/versao/v1/odata/CotacaoMoedaDia(moeda=@moeda,dataCotacao=@dataCotacao)?@moeda='${moeda}'&@dataCotacao='${dataCotacao}'&$top=100&$format=json&$select=paridadeCompra,paridadeVenda,cotacaoCompra,cotacaoVenda,dataHoraCotacao,tipoBoletim`,
       { timeout: 5000 }
     );

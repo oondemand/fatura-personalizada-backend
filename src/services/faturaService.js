@@ -17,7 +17,7 @@ const Configuracao = require("../models/configuracao");
 const ContaCorrenteService = require("./omie/contaCorrenteService");
 
 const faturaService = {
-  gerar: async (authOmie, nCodOS, tenant) => {
+  gerar: async (authOmie, nCodOS, tenant, gatilho) => {
     const chalk = await import("chalk").then((mod) => mod.default);
     console.log("");
     console.log(chalk.green("Gerando fatura para OS"), nCodOS);
@@ -35,7 +35,7 @@ const faturaService = {
       );
 
       const { fatura, emailAssunto, emailCorpo } =
-        await faturaService.getTemplates(authOmie.appKey, tenant);
+        await faturaService.getTemplates(authOmie.appKey, tenant, gatilho);
 
       const { os, cliente } = await faturaService.getVariaveisOmie(
         authOmie,
@@ -51,6 +51,7 @@ const faturaService = {
         moedas,
         configuracoes,
       };
+
       const renderedAssunto = ejs.render(emailAssunto, variaveisTemplates);
       const renderedCorpo = ejs.render(emailCorpo, variaveisTemplates);
 
@@ -67,10 +68,17 @@ const faturaService = {
         cliente,
         renderedAssunto,
         renderedCorpo,
-        tenant
+        tenant,
+        gatilho
       );
 
-      await faturaService.processarOS(authOmie, nCodOS, observacao, tenant);
+      await faturaService.processarOS(
+        authOmie,
+        nCodOS,
+        observacao,
+        tenant,
+        gatilho
+      );
 
       console.log(JSON.stringify(os.Cabecalho));
       console.log(chalk.green(`OS ${os.Cabecalho.cNumOS} processada!`));
@@ -79,12 +87,17 @@ const faturaService = {
       console.log(chalk.red(`Erro processamento OS ${nCodOS}`));
       console.error(error);
 
-      const etapaErro = await getConfig(
-        "omie-etapa-erro",
-        authOmie.appKey,
-        tenant
+      // const etapaErro = await getConfig(
+      //   "omie-etapa-erro",
+      //   authOmie.appKey,
+      //   tenant
+      // );
+      await osService.trocarEtapaOS(
+        authOmie,
+        nCodOS,
+        gatilho.etapaErro,
+        `${error}`
       );
-      await osService.trocarEtapaOS(authOmie, nCodOS, etapaErro, `${error}`);
       console.log(`OS ${nCodOS} movida para a etapa de erro`);
     }
   },
@@ -113,41 +126,41 @@ const faturaService = {
         { baseOmie: baseOmie._id, tenant },
         { baseOmie: null, tenant },
       ],
-    }).exec();
+    });
 
     return configuracoes;
   },
 
-  getTemplates: async (appKey, tenant) => {
-    const defaultTemplates = {
-      fatura: "fatura",
-      emailAssunto: "email-assunto",
-      emailCorpo: "email-corpo",
-    };
+  getTemplates: async (appKey, tenant, gatilho) => {
+    // const defaultTemplates = {
+    //   fatura: "fatura",
+    //   emailAssunto: "email-assunto",
+    //   emailCorpo: "email-corpo",
+    // };
 
     try {
-      const faturaTemplate =
-        (await getConfig("template-fatura", appKey, tenant)) ||
-        defaultTemplates.fatura;
-      const emailAssuntoTemplate =
-        (await getConfig("template-email-assunto", appKey, tenant)) ||
-        defaultTemplates.emailAssunto;
-      const emailCorpoTemplate =
-        (await getConfig("template-email-corpo", appKey, tenant)) ||
-        defaultTemplates.emailCorpo;
+      // const faturaTemplate =
+      //   (await getConfig("template-fatura", appKey, tenant)) ||
+      //   defaultTemplates.fatura;
+      // const emailAssuntoTemplate =
+      //   (await getConfig("template-email-assunto", appKey, tenant)) ||
+      //   defaultTemplates.emailAssunto;
+      // const emailCorpoTemplate =
+      //   (await getConfig("template-email-corpo", appKey, tenant)) ||
+      //   defaultTemplates.emailCorpo;
 
       const fatura = await Template.findOne({
-        codigo: faturaTemplate,
+        _id: gatilho.templateDocumento,
         tenant,
-      }).exec();
+      });
       const emailAssunto = await Template.findOne({
-        codigo: emailAssuntoTemplate,
+        _id: gatilho.templateAssuntoEmail,
         tenant,
-      }).exec();
+      });
       const emailCorpo = await Template.findOne({
-        codigo: emailCorpoTemplate,
+        _id: gatilho.templateCorpoEmail,
         tenant,
-      }).exec();
+      });
 
       if (!fatura || !emailAssunto || !emailCorpo) {
         throw new Error("Um ou mais templates não foram encontrados.");
@@ -180,32 +193,37 @@ const faturaService = {
     return { os, cliente };
   },
 
-  processarOS: async (authOmie, nCodOS, observacao, tenant) => {
+  //TODO: não usar mais o getConfig
+  processarOS: async (authOmie, nCodOS, observacao, tenant, gatilho) => {
     console.log("Processando OS", nCodOS);
 
-    const etapaProcessado = await getConfig(
-      "omie-etapa-processado",
-      authOmie.appKey,
-      tenant
-    );
+    // const etapaProcessado = await getConfig(
+    //   "omie-etapa-processado",
+    //   authOmie.appKey,
+    //   tenant
+    // );
 
-    const gerarAdiantamento = await getConfig(
-      "omie-adiantamento-gerar",
-      authOmie.appKey,
-      tenant
-    );
+    // const gerarAdiantamento = await getConfig(
+    //   "omie-adiantamento-gerar",
+    //   authOmie.appKey,
+    //   tenant
+    // );
 
-    const categoriaAdiantamento = await getConfig(
-      "omie-adiantamento-categoria",
-      authOmie.appKey,
-      tenant
-    );
+    // const categoriaAdiantamento = await getConfig(
+    //   "omie-adiantamento-categoria",
+    //   authOmie.appKey,
+    //   tenant
+    // );
 
     // const contaCorrenteAdiantamento = await getConfig(
     //   "omie-adiantamento-conta-corrente",
     //   authOmie.appKey,
     //   tenant
     // );
+
+    const etapaProcessado = gatilho.etapaProcessado;
+    const gerarAdiantamento = gatilho.adiantamento;
+    const categoriaAdiantamento = gatilho.categoria;
 
     const ccAdiamentoCliente =
       await ContaCorrenteService.obterContaAdiamentoCliente({
@@ -232,15 +250,10 @@ const faturaService = {
     cliente,
     renderedAssunto,
     renderedCorpo,
-    tenant
+    tenant,
+    gatilho
   ) => {
-    const enviarEmail = await getConfig(
-      "enviar-email",
-      authOmie.appKey,
-      tenant
-    );
-
-    if (!enviarEmail) {
+    if (!gatilho.enviarEmail) {
       console.log("Envio de email desativado");
       return;
     }

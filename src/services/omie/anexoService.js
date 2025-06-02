@@ -168,7 +168,7 @@ const anexoService = {
 
             const { cNomeArquivo, cLinkDownload } = anexoOmie;
 
-            const resposta = await axios.get(cLinkDownload, {
+            const resposta = await axios({}).get(cLinkDownload, {
               responseType: "arraybuffer",
             });
             const fileBuffer = Buffer.from(resposta.data);
