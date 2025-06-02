@@ -15,12 +15,20 @@ const Template = require("../models/template");
 const Moeda = require("../models/moeda");
 const Configuracao = require("../models/configuracao");
 const ContaCorrenteService = require("./omie/contaCorrenteService");
+const trackingService = require("./Tracking/index");
 
 const faturaService = {
   gerar: async (authOmie, nCodOS, tenant, gatilho) => {
     const chalk = await import("chalk").then((mod) => mod.default);
     console.log("");
     console.log(chalk.green("Gerando fatura para OS"), nCodOS);
+
+    const tracking = await trackingService.iniciarRastreamento({
+      tenant,
+      kanban: "OrdemServiço",
+      template: gatilho.templateDocumento,
+      emailUsuarioOmie: authOmie.email,
+    });
 
     try {
       const [baseOmie, includes, moedas] = await Promise.all([
@@ -43,6 +51,11 @@ const faturaService = {
         tenant
       );
 
+      await trackingService.atualizarRastreamento({
+        id: tracking._id,
+        variaveisOmieCarregadas: true,
+      });
+
       const variaveisTemplates = {
         baseOmie,
         includes,
@@ -60,9 +73,19 @@ const faturaService = {
         variaveisTemplates
       );
 
+      await trackingService.atualizarRastreamento({
+        id: tracking._id,
+        documentoGerado: true,
+      });
+
       await anexoService.incluirAnexoInvoiceOS(authOmie, os, pdfBuffer);
 
-      const observacao = await faturaService.enviarEmail(
+      await trackingService.atualizarRastreamento({
+        id: tracking._id,
+        documentoAnexadoOmie: true,
+      });
+
+      const emailTo = await faturaService.enviarEmail(
         authOmie,
         os,
         cliente,
@@ -72,6 +95,14 @@ const faturaService = {
         gatilho
       );
 
+      await trackingService.atualizarRastreamento({
+        id: tracking._id,
+        emailEnviado: true,
+        emailsDestinatarios: emailTo,
+      });
+
+      const observacao = `Invoice enviada para ${emailTo} as ${new Date().toLocaleString()}`;
+
       await faturaService.processarOS(
         authOmie,
         nCodOS,
@@ -80,24 +111,35 @@ const faturaService = {
         gatilho
       );
 
+      await trackingService.atualizarRastreamento({
+        id: tracking._id,
+        adiantamentoGerado: gatilho.adiantamento,
+      });
+
+      await trackingService.concluirRastreamento({
+        id: tracking._id,
+        status: "sucesso",
+      });
+
       console.log(JSON.stringify(os.Cabecalho));
       console.log(chalk.green(`OS ${os.Cabecalho.cNumOS} processada!`));
     } catch (error) {
-      // console.log(`Erro processamento OS ${nCodOS}: ${error}`);
       console.log(chalk.red(`Erro processamento OS ${nCodOS}`));
       console.error(error);
 
-      // const etapaErro = await getConfig(
-      //   "omie-etapa-erro",
-      //   authOmie.appKey,
-      //   tenant
-      // );
       await osService.trocarEtapaOS(
         authOmie,
         nCodOS,
         gatilho.etapaErro,
         `${error}`
       );
+
+      await trackingService.concluirRastreamento({
+        id: tracking._id,
+        status: "falha",
+        detalhesErro: error.message,
+      });
+
       console.log(`OS ${nCodOS} movida para a etapa de erro`);
     }
   },
@@ -132,31 +174,17 @@ const faturaService = {
   },
 
   getTemplates: async (appKey, tenant, gatilho) => {
-    // const defaultTemplates = {
-    //   fatura: "fatura",
-    //   emailAssunto: "email-assunto",
-    //   emailCorpo: "email-corpo",
-    // };
-
     try {
-      // const faturaTemplate =
-      //   (await getConfig("template-fatura", appKey, tenant)) ||
-      //   defaultTemplates.fatura;
-      // const emailAssuntoTemplate =
-      //   (await getConfig("template-email-assunto", appKey, tenant)) ||
-      //   defaultTemplates.emailAssunto;
-      // const emailCorpoTemplate =
-      //   (await getConfig("template-email-corpo", appKey, tenant)) ||
-      //   defaultTemplates.emailCorpo;
-
       const fatura = await Template.findOne({
         _id: gatilho.templateDocumento,
         tenant,
       });
+
       const emailAssunto = await Template.findOne({
         _id: gatilho.templateAssuntoEmail,
         tenant,
       });
+
       const emailCorpo = await Template.findOne({
         _id: gatilho.templateCorpoEmail,
         tenant,
@@ -173,7 +201,6 @@ const faturaService = {
       };
     } catch (error) {
       console.error("Erro ao carregar templates:", error.message);
-      // Retornar um objeto vazio ou valores padrão em caso de erro
       throw error;
     }
   },
@@ -193,33 +220,8 @@ const faturaService = {
     return { os, cliente };
   },
 
-  //TODO: não usar mais o getConfig
   processarOS: async (authOmie, nCodOS, observacao, tenant, gatilho) => {
     console.log("Processando OS", nCodOS);
-
-    // const etapaProcessado = await getConfig(
-    //   "omie-etapa-processado",
-    //   authOmie.appKey,
-    //   tenant
-    // );
-
-    // const gerarAdiantamento = await getConfig(
-    //   "omie-adiantamento-gerar",
-    //   authOmie.appKey,
-    //   tenant
-    // );
-
-    // const categoriaAdiantamento = await getConfig(
-    //   "omie-adiantamento-categoria",
-    //   authOmie.appKey,
-    //   tenant
-    // );
-
-    // const contaCorrenteAdiantamento = await getConfig(
-    //   "omie-adiantamento-conta-corrente",
-    //   authOmie.appKey,
-    //   tenant
-    // );
 
     const etapaProcessado = gatilho.etapaProcessado;
     const gerarAdiantamento = gatilho.adiantamento;
@@ -289,7 +291,7 @@ const faturaService = {
     console.log(`Destinatários: ${emailTo}`);
     await sendEmail(emailFrom, emailTo, renderedAssunto, renderedCorpo, anexos);
 
-    return `Invoice enviada para ${emailTo} as ${new Date().toLocaleString()}`;
+    return emailTo;
   },
 
   gerarPDFInvoice: async (template, variaveis) => {

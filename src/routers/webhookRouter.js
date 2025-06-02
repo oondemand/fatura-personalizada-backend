@@ -2,7 +2,6 @@
 const express = require("express");
 const faturaService = require("../services/faturaService");
 const BaseOmie = require("../models/baseOmie");
-const { getConfig } = require("../utils/config");
 const Gatilho = require("../models/gatilho");
 
 const router = express.Router();
@@ -11,7 +10,7 @@ router.post("/gerar-fatura/:id", async (req, res) => {
   const gatilhoId = req.params.id;
 
   try {
-    const { appKey, event, ping, topic } = req.body;
+    const { appKey, event, ping, topic, author } = req.body;
 
     const gatilho = await Gatilho.findById(gatilhoId);
 
@@ -24,12 +23,6 @@ router.post("/gerar-fatura/:id", async (req, res) => {
     // Verificar se o tópico é "OrdemServico.EtapaAlterada"
     if (topic !== "OrdemServico.EtapaAlterada")
       return res.status(200).json({ message: "Tópico ignorado." });
-
-    // const etapaGerarFatura = await getConfig(
-    //   "omie-etapa-gerar",
-    //   appKey,
-    //   tenant
-    // );
 
     console.log("Etapa gerar:", gatilho.etapaGeracao);
 
@@ -55,6 +48,7 @@ router.post("/gerar-fatura/:id", async (req, res) => {
     const authOmie = {
       appKey: appKey,
       appSecret: baseOmie.appSecret,
+      email: author.email,
     };
 
     // Acionar o serviço de geração da fatura
