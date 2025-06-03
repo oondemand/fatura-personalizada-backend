@@ -111,10 +111,12 @@ const faturaService = {
         gatilho
       );
 
-      await trackingService.atualizarRastreamento({
-        id: tracking._id,
-        adiantamentoGerado: gatilho.adiantamento,
-      });
+      if (gatilho.adiantamento) {
+        await trackingService.atualizarRastreamento({
+          id: tracking._id,
+          adiantamentoGerado: gatilho.adiantamento,
+        });
+      }
 
       await trackingService.concluirRastreamento({
         id: tracking._id,

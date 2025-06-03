@@ -1,4 +1,3 @@
-// src/routers/webhookRouter.js
 const express = require("express");
 const faturaService = require("../services/faturaService");
 const BaseOmie = require("../models/baseOmie");
@@ -7,20 +6,19 @@ const Gatilho = require("../models/gatilho");
 const router = express.Router();
 
 router.post("/gerar-fatura/:id", async (req, res) => {
-  const gatilhoId = req.params.id;
+  console.log("------------------------------------");
+  console.log(`🔄 Recebendo webhook ${req.body.topic}`);
 
   try {
-    const { appKey, event, ping, topic, author } = req.body;
-
-    const gatilho = await Gatilho.findById(gatilhoId);
+    const gatilho = await Gatilho.findById(req.params.id);
 
     if (!gatilho)
       return res.status(404).json({ error: "Gatilho não encontrado" });
 
-    // Verificar se o webhook é um ping
+    const { appKey, event, ping, topic, author } = req.body;
+
     if (ping === "omie") return res.status(200).json({ message: "pong" });
 
-    // Verificar se o tópico é "OrdemServico.EtapaAlterada"
     if (topic !== "OrdemServico.EtapaAlterada")
       return res.status(200).json({ message: "Tópico ignorado." });
 
@@ -35,7 +33,6 @@ router.post("/gerar-fatura/:id", async (req, res) => {
       });
     }
 
-    // Consultar o banco de dados para obter o appSecret
     const baseOmie = await BaseOmie.findOne({
       appKey: appKey,
       tenant: gatilho.tenant,
@@ -44,14 +41,12 @@ router.post("/gerar-fatura/:id", async (req, res) => {
     if (!baseOmie)
       return res.status(404).send({ error: "AppKey não encontrada" });
 
-    // Estrutura esperada para gerar a fatura
     const authOmie = {
       appKey: appKey,
       appSecret: baseOmie.appSecret,
       email: author.email,
     };
 
-    // Acionar o serviço de geração da fatura
     faturaService.gerar(
       authOmie,
       event.idOrdemServico,

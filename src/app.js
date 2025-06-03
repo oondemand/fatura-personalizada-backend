@@ -44,7 +44,7 @@ app.use("/configuracoes", require("./routers/configuracaoRouter"));
 app.use("/moedas", require("./routers/moedaRouter"));
 app.use("/templates", require("./routers/templateRouter"));
 app.use("/includes", require("./routers/includeRouter"));
-app.use("/logs", require("./routers/logRouter"));
+app.use("/rastreabilidade", require("./routers/rastreabilidadeRouter"));
 app.use("/tenants", require("./routers/tenantRouter"));
 app.use("/fatura", require("./routers/faturaRouter"));
 app.use("/assistentes", require("./routers/assistenteRouter"));

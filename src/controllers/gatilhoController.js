@@ -1,4 +1,5 @@
 const Gatilho = require("../models/gatilho");
+const { sendPaginatedResponse } = require("../utils/helpers");
 
 exports.createGatilho = async (req, res) => {
   try {
@@ -12,8 +13,36 @@ exports.createGatilho = async (req, res) => {
 
 exports.getAllGatilhos = async (req, res) => {
   try {
-    const gatilhos = await Gatilho.find({ tenant: req.tenant });
-    res.status(200).json(gatilhos);
+    const { sortBy, pageIndex, pageSize, searchTerm, tipo, ...rest } =
+      req.query;
+
+    const page = parseInt(pageIndex) || 0;
+    const limite = parseInt(pageSize) || 10;
+    const skip = page * limite;
+
+    const queryResult = {
+      tenant: req.tenant,
+    };
+
+    const [gatilhos, totalDeGatilhos] = await Promise.all([
+      Gatilho.find(queryResult)
+        .skip(skip)
+        .limit(limite)
+        .sort({ createdAt: -1 }),
+      Gatilho.countDocuments(queryResult),
+    ]);
+
+    sendPaginatedResponse({
+      res,
+      statusCode: 200,
+      results: gatilhos,
+      pagination: {
+        currentPage: parseInt(page),
+        itemsPerPage: parseInt(limite),
+        totalItems: totalDeGatilhos,
+        totalPages: Math.ceil(totalDeGatilhos / limite),
+      },
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
