@@ -25,6 +25,7 @@ const DocumentoTrackingSchema = new mongoose.Schema(
     documentoGerado: { type: Boolean, default: false },
     documentoAnexadoOmie: { type: Boolean, default: false },
     emailEnviado: { type: Boolean, default: false },
+    processamentoConcluido: { type: Boolean, default: false },
     emailsDestinatarios: [String],
     adiantamentoGerado: { type: Boolean },
     dataInicioProcessamento: { type: Date, default: Date.now },
