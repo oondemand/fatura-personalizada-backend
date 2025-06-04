@@ -1,7 +1,6 @@
 const ejs = require("ejs");
 const BaseOmie = require("../models/baseOmie");
 const Include = require("../models/include");
-const Moeda = require("../models/moeda");
 const Configuracao = require("../models/configuracao");
 
 const osService = require("../services/omie/osService");
@@ -13,24 +12,8 @@ const faturaService = require("../services/faturaService");
 const { generatePDF } = require("../utils/pdfGenerator");
 const { getConfig } = require("../utils/config");
 const { sendEmail } = require("../utils/emailSender");
-
-const listarMoedasComCotacao = async ({ tenantId }) => {
-  const moedas = await Moeda.find({ tenant: tenantId });
-  const moedasComCotacao = await Promise.all(
-    moedas.map(async (moeda) => {
-      const cotacao = await moeda.getValor();
-      return {
-        simbolo: moeda.simbolo,
-        tipoCotacao: moeda.tipoCotacao,
-        valor: moeda.valor,
-        status: moeda.status,
-        cotacao: cotacao.valorCotacao,
-        valorFinal: cotacao.valorFinal,
-      };
-    })
-  );
-  return moedasComCotacao;
-};
+const { listarMoedasComCotacao } = require("../services/Moeda");
+const { getConfiguracoes } = require("../services/Configuracao");
 
 const getVariaveisOmie = async (authOmie, numOs) => {
   const os = await osService.consultarOsPorNumero(authOmie, numOs);
@@ -56,7 +39,7 @@ exports.gerarPreview = async (req, res) => {
 
     const [includes, moedas] = await Promise.all([
       Include.find({ tenant: req.tenant }),
-      listarMoedasComCotacao({ tenantId: req.tenant }),
+      listarMoedasComCotacao({ tenant: req.tenant }),
     ]);
 
     const configuracoes = await Configuracao.find({
@@ -92,7 +75,7 @@ exports.downloadPdf = async (req, res) => {
 
     const [includes, moedas] = await Promise.all([
       Include.find({ tenant: req.tenant }),
-      listarMoedasComCotacao({ tenantId: req.tenant }),
+      listarMoedasComCotacao({ tenant: req.tenant }),
     ]);
 
     const configuracoes = await Configuracao.find({
@@ -148,7 +131,7 @@ exports.listarVariaveisSistema = async (req, res) => {
 
     const [includes, moedas] = await Promise.all([
       Include.find({ tenant: req.tenant }),
-      listarMoedasComCotacao({ tenantId: req.tenant }),
+      listarMoedasComCotacao({ tenant: req.tenant }),
     ]);
 
     const configuracoes = await Configuracao.find({
@@ -180,13 +163,10 @@ exports.enviarFatura = async (req, res) => {
     const [baseOmie, includes, moedas] = await Promise.all([
       BaseOmie.findOne({ _id: req.body.baseOmie, tenant }),
       Include.find({ tenant }),
-      faturaService.listarMoedasComCotacao(tenant),
+      listarMoedasComCotacao({ tenant }),
     ]);
 
-    const configuracoes = await faturaService.getConfiguracoes(
-      baseOmie,
-      tenant
-    );
+    const configuracoes = await getConfiguracoes({ baseOmie, tenant });
 
     const { fatura, emailAssunto, emailCorpo } =
       await faturaService.getTemplates(baseOmie.appKey, tenant);

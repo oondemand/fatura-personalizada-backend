@@ -12,10 +12,10 @@ const paisesService = require("./omie/paisesService");
 const BaseOmie = require("../models/baseOmie");
 const Include = require("../models/include");
 const Template = require("../models/template");
-const Moeda = require("../models/moeda");
-const Configuracao = require("../models/configuracao");
 const ContaCorrenteService = require("./omie/contaCorrenteService");
-const trackingService = require("./Tracking/index");
+const trackingService = require("./Tracking");
+const { listarMoedasComCotacao } = require("./Moeda");
+const { getConfiguracoes } = require("./Configuracao");
 
 const faturaService = {
   gerar: async (authOmie, nCodOS, tenant, gatilho) => {
@@ -34,13 +34,10 @@ const faturaService = {
       const [baseOmie, includes, moedas] = await Promise.all([
         BaseOmie.findOne({ appKey: authOmie.appKey, tenant }),
         Include.find({ tenant }),
-        faturaService.listarMoedasComCotacao(tenant),
+        listarMoedasComCotacao({ tenant }),
       ]);
 
-      const configuracoes = await faturaService.getConfiguracoes(
-        baseOmie,
-        tenant
-      );
+      const configuracoes = await getConfiguracoes({ baseOmie, tenant });
 
       const { fatura, emailAssunto, emailCorpo } =
         await faturaService.getTemplates(authOmie.appKey, tenant, gatilho);
@@ -144,35 +141,6 @@ const faturaService = {
 
       console.log(`OS ${nCodOS} movida para a etapa de erro`);
     }
-  },
-
-  listarMoedasComCotacao: async (tenant) => {
-    const moedas = await Moeda.find({ tenant });
-    const moedasComCotacao = await Promise.all(
-      moedas.map(async (moeda) => {
-        const cotacao = await moeda.getValor();
-        return {
-          simbolo: moeda.simbolo,
-          tipoCotacao: moeda.tipoCotacao,
-          valor: moeda.valor,
-          status: moeda.status,
-          cotacao: cotacao.valorCotacao,
-          valorFinal: cotacao.valorFinal,
-        };
-      })
-    );
-    return moedasComCotacao;
-  },
-
-  getConfiguracoes: async (baseOmie, tenant) => {
-    const configuracoes = await Configuracao.find({
-      $or: [
-        { baseOmie: baseOmie._id, tenant },
-        { baseOmie: null, tenant },
-      ],
-    });
-
-    return configuracoes;
   },
 
   getTemplates: async (appKey, tenant, gatilho) => {
