@@ -5,21 +5,10 @@ const sendgridAppKey = process.env.SENDGRID_API_KEY;
 client.setApiKey(sendgridAppKey);
 
 const sendEmail = async (emailFrom, emailTo, subject, body, attachments) => {
-  //verificar e remover emails duplicados
-  emailTo = emailTo
-    .split(",")
-    .map((email) => email.trim())
-    .filter((email, index, self) => email && self.indexOf(email) === index)
-    .join(",");
+  const emails = sanitizarEmails({ emailArray: emailTo });
 
   const message = {
-    personalizations: [
-      {
-        to: emailTo.split(",").map((email) => ({
-          email: email.trim(),
-        })),
-      },
-    ],
+    personalizations: [{ to: emails }],
     from: {
       email: emailFrom.email,
       name: emailFrom.nome,
@@ -110,4 +99,21 @@ const emailConvidarUsuario = async ({ email, nome, url }) => {
   }
 };
 
-module.exports = { sendEmail, emailConvidarUsuario };
+const sanitizarEmails = ({ emailArray = [] }) => {
+  return Array.from(
+    new Set(
+      emailArray
+        .map((email) => ({
+          email: email.trim(),
+        }))
+        .filter((item) => item.email.includes("@"))
+    )
+  );
+};
+
+module.exports = {
+  sendEmail,
+  emailConvidarUsuario,
+  enviarEmail,
+  sanitizarEmails,
+};

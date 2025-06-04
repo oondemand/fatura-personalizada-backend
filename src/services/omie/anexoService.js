@@ -33,6 +33,24 @@ const anexoService = {
     }
   },
 
+  incluirAnexoPedidoVenda: async ({ baseOmie, pedido, arquivo }) => {
+    try {
+      const dataAtual = format(new Date(), "yyyy-MM-dd_HHmm");
+      const nomeArquivo = `invoice-${pedido.pedido_venda_produto.cabecalho.numero_pedido}_${dataAtual}.pdf`;
+
+      return await anexoService.incluirAnexo(
+        baseOmie,
+        "pedido-venda",
+        pedido.pedido_venda_produto.cabecalho.codigo_pedido,
+        nomeArquivo,
+        "pdf",
+        arquivo
+      );
+    } catch (error) {
+      console.log("Erro ao incluir anexo no pedido de venda", error);
+    }
+  },
+
   incluirAnexo: async (
     omieAuth,
     tabela,

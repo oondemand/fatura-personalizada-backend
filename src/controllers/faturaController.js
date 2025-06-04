@@ -194,14 +194,9 @@ exports.enviarFatura = async (req, res) => {
 
     const emails = [...req?.body?.emailList?.split(",")];
 
-    const emailTo = emails
-      .map((email) => email.trim())
-      .filter((email) => email)
-      .join(",");
+    console.log(`Destinatários: ${emails}`);
 
-    console.log(`Destinatários: ${emailTo}`);
-
-    await sendEmail(emailFrom, emailTo, renderedAssunto, renderedCorpo, [
+    await sendEmail(emailFrom, emails, renderedAssunto, renderedCorpo, [
       { filename: "anexo.pdf", fileBuffer: Buffer.from(pdf) },
     ]);
 

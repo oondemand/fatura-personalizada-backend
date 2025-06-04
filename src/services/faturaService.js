@@ -239,29 +239,23 @@ const faturaService = {
 
     const emailCopia = await getConfig("email-copia", authOmie.appKey, tenant);
 
-    let emailToArray = [];
-
-    if (os?.Email?.cEnviarPara?.length > 0)
-      emailToArray.push(os.Email.cEnviarPara);
-    if (cliente?.email?.length > 0) emailToArray.push(cliente.email);
-    if (emailCopia) emailToArray.push(emailCopia);
-
-    let emailTo = emailToArray
-      .map((email) => email.trim())
-      .filter((email) => email)
-      .join(",");
+    const emails = [
+      cliente?.email,
+      emailCopia,
+      ...(os?.Email?.cEnviarPara?.split(",") || []),
+    ];
 
     const anexos = await anexoService.listarAnexoBuffer(
       authOmie,
       os.Cabecalho.nCodOS
     );
 
-    if (!emailTo?.length > 0) throw new Error("Email não informado");
+    if (!emails?.length > 0) throw new Error("Email não informado");
 
-    console.log(`Destinatários: ${emailTo}`);
-    await sendEmail(emailFrom, emailTo, renderedAssunto, renderedCorpo, anexos);
+    console.log(`Destinatários: ${emails}`);
+    await sendEmail(emailFrom, emails, renderedAssunto, renderedCorpo, anexos);
 
-    return emailTo;
+    return emails.join(", ");
   },
 
   gerarPDFInvoice: async (template, variaveis) => {
