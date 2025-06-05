@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.3.0 (2025-06-05)
+
+### Features
+
+* adicionar configuração de deploy para homologação com Kubernetes e Cert-Manager ([274d86c](https://github.com/oondemand/fatura-personalizada-backend/commit/274d86c695a606bfbf58c57d79275aed7f782f6f))
+
 ## 0.2.11 (2025-02-25)
 
 ## 0.2.10 (2025-02-24)
