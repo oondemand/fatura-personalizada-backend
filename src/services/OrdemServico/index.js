@@ -16,6 +16,7 @@ const ContaCorrenteService = require("../omie/contaCorrenteService");
 const trackingService = require("../Tracking");
 const { listarMoedasComCotacao } = require("../Moeda");
 const { getConfiguracoes } = require("../Configuracao");
+const { getTemplates } = require("../Template");
 
 const ordemServicoService = {
   gerar: async (authOmie, nCodOS, tenant, gatilho) => {
@@ -39,17 +40,14 @@ const ordemServicoService = {
 
       const configuracoes = await getConfiguracoes({ baseOmie, tenant });
 
-      const { fatura, emailAssunto, emailCorpo } =
-        await ordemServicoService.getTemplates(
-          authOmie.appKey,
-          tenant,
-          gatilho
-        );
+      const { fatura, emailAssunto, emailCorpo } = await getTemplates({
+        tenant,
+        gatilho,
+      });
 
       const { os, cliente } = await ordemServicoService.getVariaveisOmie(
         authOmie,
-        nCodOS,
-        tenant
+        nCodOS
       );
 
       await trackingService.atualizarRastreamento({
@@ -147,40 +145,55 @@ const ordemServicoService = {
     }
   },
 
-  getTemplates: async (appKey, tenant, gatilho) => {
-    try {
-      const fatura = await Template.findOne({
-        _id: gatilho.templateDocumento,
-        tenant,
-      });
+  // getTemplates: async (appKey, tenant, gatilho) => {
+  //   try {
+  //     const fatura = await Template.findOne({
+  //       _id: gatilho.templateDocumento,
+  //       tenant,
+  //     });
 
-      const emailAssunto = await Template.findOne({
-        _id: gatilho.templateAssuntoEmail,
-        tenant,
-      });
+  //     const emailAssunto = await Template.findOne({
+  //       _id: gatilho.templateAssuntoEmail,
+  //       tenant,
+  //     });
 
-      const emailCorpo = await Template.findOne({
-        _id: gatilho.templateCorpoEmail,
-        tenant,
-      });
+  //     const emailCorpo = await Template.findOne({
+  //       _id: gatilho.templateCorpoEmail,
+  //       tenant,
+  //     });
 
-      if (!fatura || !emailAssunto || !emailCorpo) {
-        throw new Error("Um ou mais templates não foram encontrados.");
-      }
+  //     if (!fatura || !emailAssunto || !emailCorpo) {
+  //       throw new Error("Um ou mais templates não foram encontrados.");
+  //     }
 
-      return {
-        fatura: fatura.templateEjs,
-        emailAssunto: emailAssunto.templateEjs,
-        emailCorpo: emailCorpo.templateEjs,
-      };
-    } catch (error) {
-      console.error("Erro ao carregar templates:", error.message);
-      throw error;
-    }
-  },
+  //     return {
+  //       fatura: fatura.templateEjs,
+  //       emailAssunto: emailAssunto.templateEjs,
+  //       emailCorpo: emailCorpo.templateEjs,
+  //     };
+  //   } catch (error) {
+  //     console.error("Erro ao carregar templates:", error.message);
+  //     throw error;
+  //   }
+  // },
 
   getVariaveisOmie: async (authOmie, nCodOS) => {
     const os = await osOmie.consultarOS(authOmie, nCodOS);
+    const cliente = await clienteService.consultarCliente(
+      authOmie,
+      os.Cabecalho.nCodCli
+    );
+    const paises = await paisesService.consultarPais(
+      authOmie,
+      cliente.codigo_pais
+    );
+    cliente.pais = paises.lista_paises[0].cDescricao;
+
+    return { os, cliente };
+  },
+
+  getVariaveisOmiePorNumero: async (authOmie, numeroOS) => {
+    const os = await osOmie.consultarOsPorNumero(authOmie, numeroOS);
     const cliente = await clienteService.consultarCliente(
       authOmie,
       os.Cabecalho.nCodCli

@@ -1,12 +1,12 @@
 const { apiOmie } = require("../../config/apiOmie");
 
 exports.PedidoVendaOmie = {
-  consultarPedidoVenda: async ({ baseOmie, codPedido }) => {
+  consultarPedidoVenda: async ({ baseOmie, nPedido }) => {
     const body = {
       call: "ConsultarPedido",
       app_key: baseOmie.appKey,
       app_secret: baseOmie.appSecret,
-      param: [{ codigo_pedido: codPedido }],
+      param: [{ numero_pedido: nPedido }],
     };
 
     try {
@@ -18,12 +18,7 @@ exports.PedidoVendaOmie = {
     }
   },
 
-  trocarEtapaPedidoVenda: async ({
-    baseOmie,
-    codPedido,
-    etapa,
-    observacao,
-  }) => {
+  trocarEtapaPedidoVenda: async ({ baseOmie, nPedido, etapa, observacao }) => {
     const body = {
       call: "AlterarPedidoVenda",
       app_key: baseOmie.appKey,
@@ -31,7 +26,7 @@ exports.PedidoVendaOmie = {
       param: [
         {
           Cabecalho: {
-            codigo_pedido: codPedido,
+            numero_pedido: nPedido,
             etapa: etapa,
           },
           Observacoes: {

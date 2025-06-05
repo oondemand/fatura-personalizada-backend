@@ -11,8 +11,9 @@ const ejs = require("ejs");
 const { getConfig } = require("../../utils/config");
 const anexoService = require("../omie/anexoService");
 const EmailSender = require("../../utils/emailSender");
+const { getTemplates } = require("../Template");
 
-const gerar = async ({ gatilho, baseOmie, autor, idPedido }) => {
+const gerar = async ({ gatilho, baseOmie, autor, nPedido }) => {
   let tracking;
   const tenant = baseOmie.tenant;
 
@@ -37,7 +38,7 @@ const gerar = async ({ gatilho, baseOmie, autor, idPedido }) => {
 
     const { pedido, cliente } = await getVariaveisOmie({
       baseOmie,
-      codPedido: idPedido,
+      nPedido: nPedido,
     });
 
     await TrackingService.atualizarRastreamento({
@@ -106,10 +107,10 @@ const gerar = async ({ gatilho, baseOmie, autor, idPedido }) => {
       status: "sucesso",
     });
   } catch (error) {
-    console.log(`❌ Erro ao processar pedido ${idPedido}`, error.message);
+    console.log(`❌ Erro ao processar pedido ${nPedido}`, error.message);
     await PedidoVendaOmie.trocarEtapaPedidoVenda({
       baseOmie,
-      codPedido: idPedido,
+      nPedido: nPedido,
       etapa: gatilho.etapaErro,
       observacao: `${error.message}`,
     });
@@ -124,38 +125,38 @@ const gerar = async ({ gatilho, baseOmie, autor, idPedido }) => {
   }
 };
 
-const getTemplates = async ({ tenant, gatilho }) => {
-  const { templateDocumento, templateAssuntoEmail, templateCorpoEmail } =
-    gatilho;
+// const getTemplates = async ({ tenant, gatilho }) => {
+//   const { templateDocumento, templateAssuntoEmail, templateCorpoEmail } =
+//     gatilho;
 
-  try {
-    const [fatura, emailAssunto, emailCorpo] = await Promise.all([
-      Template.findOne({ _id: templateDocumento, tenant }),
-      Template.findOne({ _id: templateAssuntoEmail, tenant }),
-      Template.findOne({ _id: templateCorpoEmail, tenant }),
-    ]);
+//   try {
+//     const [fatura, emailAssunto, emailCorpo] = await Promise.all([
+//       Template.findOne({ _id: templateDocumento, tenant }),
+//       Template.findOne({ _id: templateAssuntoEmail, tenant }),
+//       Template.findOne({ _id: templateCorpoEmail, tenant }),
+//     ]);
 
-    if (!fatura || !emailAssunto || !emailCorpo) {
-      throw new Error(
-        "Um ou mais templates obrigatórios não foram encontrados."
-      );
-    }
+//     if (!fatura || !emailAssunto || !emailCorpo) {
+//       throw new Error(
+//         "Um ou mais templates obrigatórios não foram encontrados."
+//       );
+//     }
 
-    return {
-      fatura: fatura.templateEjs,
-      emailAssunto: emailAssunto.templateEjs,
-      emailCorpo: emailCorpo.templateEjs,
-    };
-  } catch (error) {
-    console.error("❌ Erro ao carregar templates:", error);
-    throw new Error("Erro ao buscar templates do gatilho.");
-  }
-};
+//     return {
+//       fatura: fatura.templateEjs,
+//       emailAssunto: emailAssunto.templateEjs,
+//       emailCorpo: emailCorpo.templateEjs,
+//     };
+//   } catch (error) {
+//     console.error("❌ Erro ao carregar templates:", error);
+//     throw new Error("Erro ao buscar templates do gatilho.");
+//   }
+// };
 
-const getVariaveisOmie = async ({ baseOmie, codPedido }) => {
+const getVariaveisOmie = async ({ baseOmie, nPedido }) => {
   const pedido = await PedidoVendaOmie.consultarPedidoVenda({
     baseOmie,
-    codPedido,
+    nPedido,
   });
 
   const cliente = await clienteService.consultarCliente(
@@ -223,4 +224,5 @@ const processarPedido = async ({ baseOmie, gatilho, pedido, observacao }) => {
 
 module.exports = {
   gerar,
+  getVariaveisOmie,
 };

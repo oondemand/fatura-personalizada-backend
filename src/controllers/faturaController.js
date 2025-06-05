@@ -3,11 +3,7 @@ const BaseOmie = require("../models/baseOmie");
 const Include = require("../models/include");
 const Configuracao = require("../models/configuracao");
 
-const osOmie = require("../services/omie/osService");
-const clienteService = require("../services/omie/clienteService");
-const paisesService = require("../services/omie/paisesService");
-
-const ordemServicoService = require("../services/OrdemServico");
+const OrdemServicoService = require("../services/OrdemServico");
 
 const { generatePDF } = require("../utils/pdfGenerator");
 const { getConfig } = require("../utils/config");
@@ -15,20 +11,8 @@ const { sendEmail } = require("../utils/emailSender");
 const { listarMoedasComCotacao } = require("../services/Moeda");
 const { getConfiguracoes } = require("../services/Configuracao");
 
-const getVariaveisOmie = async (authOmie, numOs) => {
-  const os = await osOmie.consultarOsPorNumero(authOmie, numOs);
-  const cliente = await clienteService.consultarCliente(
-    authOmie,
-    os.Cabecalho.nCodCli
-  );
-  const paises = await paisesService.consultarPais(
-    authOmie,
-    cliente.codigo_pais
-  );
-  cliente.pais = paises.lista_paises[0].cDescricao;
-
-  return { os, cliente };
-};
+const PedidoVendaService = require("../services/PedidoVenda");
+const { getTemplates } = require("../services/Template");
 
 exports.gerarPreview = async (req, res) => {
   try {
@@ -110,15 +94,31 @@ exports.downloadPdf = async (req, res) => {
 
 exports.listarVariaveisOmie = async (req, res) => {
   try {
-    const { baseOmie, os: numOs } = req.body;
+    const { baseOmie, numero, kanban } = req.body;
+
     const authOmie = await BaseOmie.findById(baseOmie);
 
-    const { os, cliente } = await getVariaveisOmie(authOmie, numOs);
+    let data;
 
-    return res.status(200).json({ data: { os, cliente } });
+    if (kanban === "PedidoVenda") {
+      data = await PedidoVendaService.getVariaveisOmie({
+        baseOmie: authOmie,
+        nPedido: numero,
+      });
+    }
+
+    if (kanban === "OrdemServiço") {
+      data = await OrdemServicoService.getVariaveisOmiePorNumero(
+        authOmie,
+        numero
+      );
+    }
+
+    return res.status(200).json({ data });
   } catch (error) {
-    console.log(error.response.data);
-    return res.status(500).json();
+    return res
+      .status(500)
+      .json({ message: error?.response?.data?.faultstring });
   }
 };
 
@@ -168,27 +168,37 @@ exports.enviarFatura = async (req, res) => {
 
     const configuracoes = await getConfiguracoes({ baseOmie, tenant });
 
-    const { fatura, emailAssunto, emailCorpo } =
-      await ordemServicoService.getTemplates(baseOmie.appKey, tenant);
+    const { fatura, emailAssunto, emailCorpo } = await getTemplates(
+      baseOmie.appKey,
+      tenant
+    );
 
-    const { os, cliente } = await getVariaveisOmie(baseOmie, req.body.os);
+    // let data;
+
+    // const { os, cliente } = await getVariaveisOmie(baseOmie, req.body.os);
+
+    // const variaveisTemplates = {
+    //   baseOmie,
+    //   includes,
+    //   cliente,
+    //   os,
+    //   moedas,
+    //   configuracoes,
+    // };
 
     const variaveisTemplates = {
-      baseOmie,
+      ...JSON.parse(req.body.omieVar),
       includes,
-      cliente,
-      os,
       moedas,
       configuracoes,
+      baseOmie,
     };
 
     const renderedAssunto = ejs.render(emailAssunto, variaveisTemplates);
     const renderedCorpo = ejs.render(emailCorpo, variaveisTemplates);
+    const renderedHtml = ejs.render(fatura, variaveisTemplates);
 
-    const pdf = await ordemServicoService.gerarPDFInvoice(
-      fatura,
-      variaveisTemplates
-    );
+    const pdf = await generatePDF(renderedHtml);
 
     const emailFrom = {
       email: await getConfig("email-from", baseOmie.appKey, tenant),

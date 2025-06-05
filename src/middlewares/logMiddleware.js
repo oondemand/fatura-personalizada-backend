@@ -40,7 +40,7 @@ function rastreabilidadeMiddleware(req, res, next) {
     log
       .save()
       .then(() => {
-        console.log("📝 Log de rastreabilidade salvo com sucesso");
+        // console.log("📝 Log de rastreabilidade salvo com sucesso");
       })
       .catch(() => {
         console.error("❌ Erro ao salvar log de rastreabilidade");

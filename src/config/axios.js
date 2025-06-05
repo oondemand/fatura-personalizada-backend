@@ -32,7 +32,7 @@ function createAxiosInstanceComLogs(axiosConfig = {}) {
 
       try {
         await log.save();
-        console.log("📤 Log de requisição externa salvo com sucesso");
+        // console.log("📤 Log de requisição externa salvo com sucesso");
       } catch (err) {
         console.error("❌ Erro ao salvar log externo:", err);
       }

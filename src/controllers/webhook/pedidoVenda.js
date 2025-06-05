@@ -37,7 +37,7 @@ exports.pedidoVenda = async (req, res) => {
       gatilho,
       baseOmie,
       autor: author,
-      idPedido: event.idPedido,
+      nPedido: event.numeroPedido,
     });
     return res.status(200).json({ message: "ok" });
   } catch (error) {
