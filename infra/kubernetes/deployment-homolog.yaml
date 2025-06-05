@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: doc-custom-backend-homolog
+  namespace: doc-custom-homolog
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: doc-custom-backend-homolog
+  template:
+    metadata:
+      labels:
+        app: doc-custom-backend-homolog
+    spec:
+      containers:
+        - name: doc-custom-backend-homolog-container
+          image: ghcr.io/oondemand/fatura-personalizada-backend:${IMAGE_TAG}-homolog
+          ports:
+            - containerPort: 4000
+          env:
+            - name: NODE_ENV
+              value: "${NODE_ENV}"
+            - name: SERVICE_NAME
+              value: "${SERVICE_NAME}"
+            - name: PORT
+              value: "${PORT}"
+            - name: DB_SERVER
+              value: "${DB_SERVER}"
+            - name: DB_USER
+              value: "${DB_USER}"
+            - name: DB_PASSWORD
+              value: "${DB_PASSWORD}"
+            - name: DB_NAME
+              value: "${DB_NAME}"
+            - name: DB_AUTH_SOURCE
+              value: "${DB_AUTH_SOURCE}"
+            - name: DB_REPLICA_SET
+              value: "${DB_REPLICA_SET}"
+            - name: DB_TSL
+              value: "${DB_TSL}"
+            - name: OMIE_API_URL
+              value: "${OMIE_API_URL}"
+            - name: JWT_SECRET
+              value: "${JWT_SECRET}"
+            - name: SENDGRID_API_KEY
+              value: "${SENDGRID_API_KEY}"
+            - name: EMAIL_REMETENTE
+              value: "${EMAIL_REMETENTE}"
+            - name: FATURA_PERSONALIZADA_CLIENT
+              value: "${FATURA_PERSONALIZADA_CLIENT}"
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "0.1"
+            limits:
+              memory: "3072Mi"
+              cpu: "2"
