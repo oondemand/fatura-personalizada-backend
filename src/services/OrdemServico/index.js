@@ -1,23 +1,23 @@
 const ejs = require("ejs");
 
-const { getConfig } = require("../utils/config");
-const { generatePDF } = require("../utils/pdfGenerator");
-const { sendEmail } = require("../utils/emailSender");
+const { getConfig } = require("../../utils/config");
+const { generatePDF } = require("../../utils/pdfGenerator");
+const { sendEmail } = require("../../utils/emailSender");
 
-const osService = require("./omie/osService");
-const clienteService = require("./omie/clienteService");
-const anexoService = require("./omie/anexoService");
-const paisesService = require("./omie/paisesService");
+const osOmie = require("../omie/osService");
+const clienteService = require("../omie/clienteService");
+const anexoService = require("../omie/anexoService");
+const paisesService = require("../omie/paisesService");
 
-const BaseOmie = require("../models/baseOmie");
-const Include = require("../models/include");
-const Template = require("../models/template");
-const ContaCorrenteService = require("./omie/contaCorrenteService");
-const trackingService = require("./Tracking");
-const { listarMoedasComCotacao } = require("./Moeda");
-const { getConfiguracoes } = require("./Configuracao");
+const BaseOmie = require("../../models/baseOmie");
+const Include = require("../../models/include");
+const Template = require("../../models/template");
+const ContaCorrenteService = require("../omie/contaCorrenteService");
+const trackingService = require("../Tracking");
+const { listarMoedasComCotacao } = require("../Moeda");
+const { getConfiguracoes } = require("../Configuracao");
 
-const faturaService = {
+const ordemServicoService = {
   gerar: async (authOmie, nCodOS, tenant, gatilho) => {
     const chalk = await import("chalk").then((mod) => mod.default);
     console.log("");
@@ -40,9 +40,13 @@ const faturaService = {
       const configuracoes = await getConfiguracoes({ baseOmie, tenant });
 
       const { fatura, emailAssunto, emailCorpo } =
-        await faturaService.getTemplates(authOmie.appKey, tenant, gatilho);
+        await ordemServicoService.getTemplates(
+          authOmie.appKey,
+          tenant,
+          gatilho
+        );
 
-      const { os, cliente } = await faturaService.getVariaveisOmie(
+      const { os, cliente } = await ordemServicoService.getVariaveisOmie(
         authOmie,
         nCodOS,
         tenant
@@ -65,7 +69,7 @@ const faturaService = {
       const renderedAssunto = ejs.render(emailAssunto, variaveisTemplates);
       const renderedCorpo = ejs.render(emailCorpo, variaveisTemplates);
 
-      const pdfBuffer = await faturaService.gerarPDFInvoice(
+      const pdfBuffer = await ordemServicoService.gerarPDFInvoice(
         fatura,
         variaveisTemplates
       );
@@ -82,7 +86,7 @@ const faturaService = {
         documentoAnexadoOmie: true,
       });
 
-      const emailTo = await faturaService.enviarEmail(
+      const emailTo = await ordemServicoService.enviarEmail(
         authOmie,
         os,
         cliente,
@@ -100,7 +104,7 @@ const faturaService = {
 
       const observacao = `Invoice enviada para ${emailTo} as ${new Date().toLocaleString()}`;
 
-      await faturaService.processarOS(
+      await ordemServicoService.processarOS(
         authOmie,
         nCodOS,
         observacao,
@@ -126,7 +130,7 @@ const faturaService = {
       console.log(chalk.red(`Erro processamento OS ${nCodOS}`));
       console.error(error);
 
-      await osService.trocarEtapaOS(
+      await osOmie.trocarEtapaOS(
         authOmie,
         nCodOS,
         gatilho.etapaErro,
@@ -176,7 +180,7 @@ const faturaService = {
   },
 
   getVariaveisOmie: async (authOmie, nCodOS) => {
-    const os = await osService.consultarOS(authOmie, nCodOS);
+    const os = await osOmie.consultarOS(authOmie, nCodOS);
     const cliente = await clienteService.consultarCliente(
       authOmie,
       os.Cabecalho.nCodCli
@@ -203,7 +207,7 @@ const faturaService = {
         tenant,
       });
 
-    const novaOs = await osService.montarOsAlterada(
+    const novaOs = await osOmie.montarOsAlterada(
       authOmie,
       nCodOS,
       etapaProcessado,
@@ -213,7 +217,7 @@ const faturaService = {
       observacao
     );
 
-    await osService.alterarOS(authOmie, novaOs);
+    await osOmie.alterarOS(authOmie, novaOs);
   },
 
   enviarEmail: async (
@@ -266,4 +270,4 @@ const faturaService = {
   },
 };
 
-module.exports = faturaService;
+module.exports = ordemServicoService;

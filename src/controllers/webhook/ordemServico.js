@@ -1,4 +1,4 @@
-const faturaService = require("../../services/faturaService");
+const ordemServicoService = require("../../services/OrdemServico");
 const BaseOmie = require("../../models/baseOmie");
 const Gatilho = require("../../models/gatilho");
 
@@ -44,7 +44,7 @@ exports.ordemServico = async (req, res) => {
       email: author.email,
     };
 
-    faturaService.gerar(
+    ordemServicoService.gerar(
       authOmie,
       event.idOrdemServico,
       gatilho.tenant,

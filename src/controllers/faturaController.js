@@ -3,11 +3,11 @@ const BaseOmie = require("../models/baseOmie");
 const Include = require("../models/include");
 const Configuracao = require("../models/configuracao");
 
-const osService = require("../services/omie/osService");
+const osOmie = require("../services/omie/osService");
 const clienteService = require("../services/omie/clienteService");
 const paisesService = require("../services/omie/paisesService");
 
-const faturaService = require("../services/faturaService");
+const ordemServicoService = require("../services/OrdemServico");
 
 const { generatePDF } = require("../utils/pdfGenerator");
 const { getConfig } = require("../utils/config");
@@ -16,7 +16,7 @@ const { listarMoedasComCotacao } = require("../services/Moeda");
 const { getConfiguracoes } = require("../services/Configuracao");
 
 const getVariaveisOmie = async (authOmie, numOs) => {
-  const os = await osService.consultarOsPorNumero(authOmie, numOs);
+  const os = await osOmie.consultarOsPorNumero(authOmie, numOs);
   const cliente = await clienteService.consultarCliente(
     authOmie,
     os.Cabecalho.nCodCli
@@ -169,7 +169,7 @@ exports.enviarFatura = async (req, res) => {
     const configuracoes = await getConfiguracoes({ baseOmie, tenant });
 
     const { fatura, emailAssunto, emailCorpo } =
-      await faturaService.getTemplates(baseOmie.appKey, tenant);
+      await ordemServicoService.getTemplates(baseOmie.appKey, tenant);
 
     const { os, cliente } = await getVariaveisOmie(baseOmie, req.body.os);
 
@@ -185,7 +185,10 @@ exports.enviarFatura = async (req, res) => {
     const renderedAssunto = ejs.render(emailAssunto, variaveisTemplates);
     const renderedCorpo = ejs.render(emailCorpo, variaveisTemplates);
 
-    const pdf = await faturaService.gerarPDFInvoice(fatura, variaveisTemplates);
+    const pdf = await ordemServicoService.gerarPDFInvoice(
+      fatura,
+      variaveisTemplates
+    );
 
     const emailFrom = {
       email: await getConfig("email-from", baseOmie.appKey, tenant),
