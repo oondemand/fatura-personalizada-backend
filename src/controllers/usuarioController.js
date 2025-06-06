@@ -92,11 +92,11 @@ exports.loginUsuario = async (req, res) => {
 
 exports.listarUsuarios = async (req, res) => {
   const filter =
-    req.usuario.tipo === "master" && !req.tenant
+    req.usuario.tipo === "admin" && !req.tenant
       ? {}
       : {
           "tenants.tenant": { $in: [req.tenant] },
-          tipo: { $in: ["padrao", "admin"] },
+          tipo: { $in: ["padrao", "admin-tenant"] },
         };
 
   try {
@@ -110,7 +110,7 @@ exports.listarUsuarios = async (req, res) => {
 
 exports.obterUsuario = async (req, res) => {
   const filter =
-    req.usuario.tipo === "master" && !req.tenant
+    req.usuario.tipo === "admin" && !req.tenant
       ? {}
       : { "tenants.tenant": { $in: [req.tenant] } };
 
@@ -130,7 +130,7 @@ exports.obterUsuario = async (req, res) => {
 
 exports.atualizarUsuario = async (req, res) => {
   const filter =
-    req.usuario.tipo === "master" && !req.tenant
+    req.usuario.tipo === "admin" && !req.tenant
       ? {}
       : { "tenants.tenant": { $in: [req.tenant] } };
 
@@ -163,12 +163,12 @@ exports.atualizarUsuario = async (req, res) => {
 
 exports.excluirUsuario = async (req, res) => {
   const filter =
-    req.usuario.tipo === "master" && !req.tenant
+    req.usuario.tipo === "admin" && !req.tenant
       ? {}
       : { "tenants.tenant": { $in: [req.tenant] } };
 
   try {
-    if (req.usuario.tipo === "master" && !req.tenant) {
+    if (req.usuario.tipo === "admin" && !req.tenant) {
       await Usuario.findOneAndDelete({
         ...filter,
         _id: req.params.id,
