@@ -11,7 +11,7 @@ exports.createGatilho = async (req, res) => {
   }
 };
 
-exports.getAllGatilhos = async (req, res) => {
+exports.getAllGatilhosComPaginacao = async (req, res) => {
   try {
     const { sortBy, pageIndex, pageSize, searchTerm, tipo, ...rest } =
       req.query;
@@ -43,6 +43,15 @@ exports.getAllGatilhos = async (req, res) => {
         totalPages: Math.ceil(totalDeGatilhos / limite),
       },
     });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+exports.getAllGatilhos = async (req, res) => {
+  try {
+    const gatilhos = await Gatilho.find({ tenant: req.tenant });
+    res.status(200).json(gatilhos);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

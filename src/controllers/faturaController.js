@@ -1,6 +1,7 @@
 const ejs = require("ejs");
 const BaseOmie = require("../models/baseOmie");
 const Include = require("../models/include");
+const Gatilho = require("../models/gatilho");
 const Configuracao = require("../models/configuracao");
 
 const OrdemServicoService = require("../services/OrdemServico");
@@ -94,20 +95,21 @@ exports.downloadPdf = async (req, res) => {
 
 exports.listarVariaveisOmie = async (req, res) => {
   try {
-    const { baseOmie, numero, kanban } = req.body;
+    const { baseOmie, numero, gatilho: gatilhoId } = req.body;
 
     const authOmie = await BaseOmie.findById(baseOmie);
+    const gatilho = await Gatilho.findById(gatilhoId);
 
     let data;
 
-    if (kanban === "PedidoVenda") {
+    if (gatilho?.kanbanOmie === "PedidoVenda") {
       data = await PedidoVendaService.getVariaveisOmie({
         baseOmie: authOmie,
         nPedido: numero,
       });
     }
 
-    if (kanban === "OrdemServiço") {
+    if (gatilho?.kanbanOmie === "OrdemServiço") {
       data = await OrdemServicoService.getVariaveisOmiePorNumero(
         authOmie,
         numero
@@ -166,25 +168,13 @@ exports.enviarFatura = async (req, res) => {
       listarMoedasComCotacao({ tenant }),
     ]);
 
+    const gatilho = await Gatilho.findById(req.body.gatilho);
     const configuracoes = await getConfiguracoes({ baseOmie, tenant });
 
-    const { fatura, emailAssunto, emailCorpo } = await getTemplates(
-      baseOmie.appKey,
-      tenant
-    );
-
-    // let data;
-
-    // const { os, cliente } = await getVariaveisOmie(baseOmie, req.body.os);
-
-    // const variaveisTemplates = {
-    //   baseOmie,
-    //   includes,
-    //   cliente,
-    //   os,
-    //   moedas,
-    //   configuracoes,
-    // };
+    const { fatura, emailAssunto, emailCorpo } = await getTemplates({
+      gatilho,
+      tenant,
+    });
 
     const variaveisTemplates = {
       ...JSON.parse(req.body.omieVar),
