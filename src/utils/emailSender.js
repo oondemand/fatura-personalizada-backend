@@ -7,27 +7,27 @@ client.setApiKey(sendgridAppKey);
 const sendEmail = async (emailFrom, emailTo, subject, body, attachments) => {
   const emails = sanitizarEmails({ emailArray: emailTo });
 
-  const message = {
-    personalizations: [{ to: emails }],
-    from: {
-      email: emailFrom.email,
-      name: emailFrom.nome,
-    },
-    subject: subject,
-    content: [
-      {
-        type: "text/html",
-        value: body,
-      },
-    ],
-    attachments: attachments.map(({ filename, fileBuffer }) => ({
-      content: fileBuffer.toString("base64"),
-      filename: filename,
-      disposition: "attachment",
-    })),
-  };
-
   try {
+    const message = {
+      personalizations: [{ to: emails }],
+      from: {
+        email: emailFrom.email,
+        name: emailFrom.nome,
+      },
+      subject: subject,
+      content: [
+        {
+          type: "text/html",
+          value: body,
+        },
+      ],
+      attachments: attachments.map(({ filename, fileBuffer }) => ({
+        content: fileBuffer.toString("base64"),
+        filename: filename,
+        disposition: "attachment",
+      })),
+    };
+
     return await client.send(message);
   } catch (error) {
     console.log(error);
