@@ -30,7 +30,7 @@ const sendEmail = async (emailFrom, emailTo, subject, body, attachments) => {
 
     return await client.send(message);
   } catch (error) {
-    console.log(error);
+    console.log("Erro ao enviar email:", error);
     throw new Error("Erro ao enviar e-mail");
   }
 };
@@ -100,15 +100,15 @@ const emailConvidarUsuario = async ({ email, nome, url }) => {
 };
 
 const sanitizarEmails = ({ emailArray = [] }) => {
-  return Array.from(
+  const emailsUnicos = Array.from(
     new Set(
       emailArray
-        .map((email) => ({
-          email: email.trim(),
-        }))
-        .filter((item) => item.email.includes("@"))
+        .map((email) => email.trim())
+        .filter((email) => email.includes("@"))
     )
   );
+
+  return emailsUnicos.map((email) => ({ email }));
 };
 
 module.exports = {
