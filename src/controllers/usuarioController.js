@@ -96,7 +96,7 @@ exports.listarUsuarios = async (req, res) => {
       ? {}
       : {
           "tenants.tenant": { $in: [req.tenant] },
-          tipo: { $in: ["padrao", "admin-tenant"] },
+          tipo: { $in: ["usuario", "admin-tenant"] },
         };
 
   try {
@@ -199,8 +199,6 @@ exports.enviarConvite = async (req, res) => {
     const { email } = req.body;
     const usuario = await Usuario.findOne({ email });
 
-    console.log(usuario);
-
     if (!usuario) {
       const usuario = new Usuario({
         nome: email,
@@ -219,7 +217,7 @@ exports.enviarConvite = async (req, res) => {
         nome: usuario.nome,
         url:
           process.env.FATURA_PERSONALIZADA_CLIENT +
-          "/primeiro-acesso?code=" +
+          "primeiro-acesso?code=" +
           token,
       });
 
