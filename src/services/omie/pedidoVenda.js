@@ -19,29 +19,29 @@ exports.PedidoVendaOmie = {
   },
 
   trocarEtapaPedidoVenda: async ({ baseOmie, nPedido, etapa, observacao }) => {
-    const body = {
-      call: "AlterarPedidoVenda",
-      app_key: baseOmie.appKey,
-      app_secret: baseOmie.appSecret,
-      param: [
-        {
-          Cabecalho: {
-            numero_pedido: nPedido,
-            etapa: etapa,
-          },
-          Observacoes: {
-            obs_venda: observacao,
-          },
-        },
-      ],
-    };
-
     try {
+      const body = {
+        call: "AlterarPedidoVenda",
+        app_key: baseOmie.appKey,
+        app_secret: baseOmie.appSecret,
+        param: [
+          {
+            Cabecalho: {
+              numero_pedido: nPedido,
+              etapa: etapa,
+            },
+            Observacoes: {
+              obs_venda: observacao,
+            },
+          },
+        ],
+      };
+
       const response = await apiOmie.post("produtos/pedido/", body);
       return response.data;
     } catch (error) {
-      console.error(`Erro ao trocar etapa do pedido ${error}`);
-      throw error;
+      //falhar silenciosamente
+      console.log("Error ao trocar etapa do pedido.", error);
     }
   },
 
