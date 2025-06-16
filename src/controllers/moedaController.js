@@ -1,5 +1,5 @@
 const Moeda = require("../models/moeda");
-const { getCotacao } = require("../services/Moeda");
+const { getCotacao } = require("../utils/moeda");
 
 class MoedaController {
   // Criar uma nova Moeda
