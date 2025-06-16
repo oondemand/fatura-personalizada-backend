@@ -27,7 +27,7 @@ const getCotacao = async (moeda) => {
   }
 
   let date = new Date();
-  const maxTentativas = 3;
+  const maxTentativas = 30; //equivalente a 30 dias
   let tentativas = 0;
 
   while (tentativas < maxTentativas) {
@@ -58,12 +58,10 @@ const getCotacao = async (moeda) => {
     }
 
     date.setDate(date.getDate() - 1);
-    // tentativas++;
+    tentativas++;
   }
 
-  throw new Error(
-    `Cotação não encontrada para a moeda '${moeda}' nos últimos ${maxTentativas} dias.`
-  );
+  throw new Error(`Cotação não encontrada para a moeda '${moeda}' .`);
 };
 
 module.exports = {
