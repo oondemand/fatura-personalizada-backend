@@ -25,7 +25,10 @@ exports.pedidoVenda = async (req, res) => {
         error: "Faltam parâmetros: idPedido ou appKey.",
       });
 
-    const baseOmie = await BaseOmie.findOne({ appKey });
+    const baseOmie = await BaseOmie.findOne({
+      appKey,
+      tenant: gatilho?.tenant,
+    });
 
     if (!baseOmie)
       return res.status(404).json({ error: "Base Omie não encontrada" });
@@ -39,7 +42,9 @@ exports.pedidoVenda = async (req, res) => {
       autor: author,
       nPedido: event.numeroPedido,
     });
-    return res.status(200).json({ message: "ok" });
+    return res
+      .status(200)
+      .json({ message: "Webhook recebido. Fatura sendo gerada." });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

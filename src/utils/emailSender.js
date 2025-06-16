@@ -103,7 +103,7 @@ const sanitizarEmails = ({ emailArray = [] }) => {
   const emailsUnicos = Array.from(
     new Set(
       emailArray
-        .map((email) => email.trim())
+        .map((email) => email?.trim())
         .filter((email) => email.includes("@"))
     )
   );
