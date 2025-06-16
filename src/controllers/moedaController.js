@@ -1,14 +1,16 @@
 const Moeda = require("../models/moeda");
+const { getCotacao } = require("../services/Moeda");
 
 class MoedaController {
   // Criar uma nova Moeda
   static async create(req, res) {
-    const moeda = new Moeda({ ...req.body, tenant: req.tenant });
     try {
+      await getCotacao(req.body.simbolo);
+      const moeda = new Moeda({ ...req.body, tenant: req.tenant });
       await moeda.save();
       res.status(201).send(moeda);
     } catch (error) {
-      res.status(500).send(error);
+      res.status(500).send(error.message);
     }
   }
 
