@@ -84,23 +84,28 @@ const ordemServicoService = {
         documentoAnexadoOmie: true,
       });
 
-      const emailTo = await ordemServicoService.enviarEmail(
-        authOmie,
-        os,
-        cliente,
-        renderedAssunto,
-        renderedCorpo,
-        tenant,
-        gatilho
-      );
+      let observacao;
 
-      await trackingService.atualizarRastreamento({
-        id: tracking._id,
-        emailEnviado: true,
-        emailsDestinatarios: emailTo,
-      });
+      if (!gatilho.enviarEmail) console.log("Envio de email desativado");
+      if (gatilho.enviarEmail) {
+        const emailTo = await ordemServicoService.enviarEmail(
+          authOmie,
+          os,
+          cliente,
+          renderedAssunto,
+          renderedCorpo,
+          tenant,
+          gatilho
+        );
 
-      const observacao = `Invoice enviada para ${emailTo} as ${new Date().toLocaleString()}`;
+        await trackingService.atualizarRastreamento({
+          id: tracking._id,
+          emailEnviado: true,
+          emailsDestinatarios: emailTo,
+        });
+
+        observacao = `Invoice enviada para ${emailTo} as ${new Date().toLocaleString()}`;
+      }
 
       await ordemServicoService.processarOS(
         authOmie,
