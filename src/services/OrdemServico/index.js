@@ -107,7 +107,8 @@ const ordemServicoService = {
         nCodOS,
         observacao,
         tenant,
-        gatilho
+        gatilho,
+        os
       );
 
       if (gatilho.adiantamento) {
@@ -207,12 +208,11 @@ const ordemServicoService = {
     return { os, cliente };
   },
 
-  processarOS: async (authOmie, nCodOS, observacao, tenant, gatilho) => {
+  processarOS: async (authOmie, nCodOS, observacao, tenant, gatilho, os) => {
     console.log("Processando OS", nCodOS);
 
     const etapaProcessado = gatilho.etapaProcessado;
     const gerarAdiantamento = gatilho.adiantamento;
-    const categoriaAdiantamento = gatilho.categoria;
 
     const ccAdiamentoCliente =
       await ContaCorrenteService.obterContaAdiamentoCliente({
@@ -225,7 +225,7 @@ const ordemServicoService = {
       nCodOS,
       etapaProcessado,
       gerarAdiantamento,
-      categoriaAdiantamento,
+      os.InformacoesAdicionais.cCodCateg,
       ccAdiamentoCliente,
       observacao
     );

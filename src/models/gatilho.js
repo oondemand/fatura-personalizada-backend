@@ -45,9 +45,6 @@ const GatilhosSchema = new Schema(
       type: Boolean,
       default: false,
     },
-    categoria: {
-      type: String,
-    },
   },
   {
     timestamps: true,

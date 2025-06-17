@@ -19,14 +19,21 @@ const ContaCorrenteService = {
       const { data } = await apiOmie.post("geral/contacorrente/", body);
 
       const ccAdiamentoCliente = data.ListarContasCorrentes.find(
-        (e) => e.tipo === "AD"
+        (e) => e.codigo_banco === "ADC"
       );
+
+      if (ccAdiamentoCliente.inativo !== "N")
+        throw new Error(
+          "A conta corrente adiantamento do cliente esta inativa!"
+        );
 
       return ccAdiamentoCliente.nCodCC;
     } catch (error) {
       console.error(
         `Ouve um erro ao obter conta corrente [Adiamento do Cliente], erro: ${error}`
       );
+
+      throw error;
     }
   },
 };
