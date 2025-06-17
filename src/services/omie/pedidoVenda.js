@@ -41,7 +41,7 @@ exports.PedidoVendaOmie = {
       return response.data;
     } catch (error) {
       //falhar silenciosamente
-      console.log("Error ao trocar etapa do pedido.", error);
+      // console.log("Error ao trocar etapa do pedido.", error);
     }
   },
 
