@@ -1,6 +1,6 @@
 {
   "name": "doc-custom-backend",
-  "version": "0.2.23",
+  "version": "0.2.24",
   "main": "src/server.js",
   "scripts": {
     "release": "release-it",
