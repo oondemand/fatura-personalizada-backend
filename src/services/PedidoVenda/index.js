@@ -50,7 +50,7 @@ const gerar = async ({ gatilho, baseOmie, autor, nPedido }) => {
       baseOmie,
       includes,
       cliente,
-      os: pedido,
+      pedido,
       moedas,
       configuracoes,
     };
