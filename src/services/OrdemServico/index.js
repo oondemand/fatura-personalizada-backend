@@ -134,18 +134,18 @@ const ordemServicoService = {
       console.log(chalk.red(`Erro processamento OS ${nCodOS}`));
       console.error(error);
 
+      await trackingService.concluirRastreamento({
+        id: tracking._id,
+        status: "falha",
+        detalhesErro: error.message,
+      });
+
       await osOmie.trocarEtapaOS(
         authOmie,
         nCodOS,
         gatilho.etapaErro,
         `${error}`
       );
-
-      await trackingService.concluirRastreamento({
-        id: tracking._id,
-        status: "falha",
-        detalhesErro: error.message,
-      });
 
       console.log(`OS ${nCodOS} movida para a etapa de erro`);
     }
