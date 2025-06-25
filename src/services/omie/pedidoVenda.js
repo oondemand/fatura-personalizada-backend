@@ -46,19 +46,19 @@ exports.PedidoVendaOmie = {
   },
 
   alterarPedidoVenda: async ({ baseOmie, pedido }) => {
-    const body = {
-      call: "AlterarPedidoVenda",
-      app_key: baseOmie.appKey,
-      app_secret: baseOmie.appSecret,
-      param: [pedido],
-    };
-
     try {
+      const body = {
+        call: "AlterarPedidoVenda",
+        app_key: baseOmie.appKey,
+        app_secret: baseOmie.appSecret,
+        param: [pedido],
+      };
+
       const response = await apiOmie.post("produtos/pedido/", body);
       return response.data;
     } catch (error) {
-      console.error(`Erro ao alterar pedido : ${error}`);
-      throw error;
+      console.log(`Erro ao alterar pedido: ${error}`);
+      throw `Erro ao alterar pedido: ${error}`;
     }
   },
 

@@ -137,7 +137,7 @@ const ordemServicoService = {
       await trackingService.concluirRastreamento({
         id: tracking._id,
         status: "falha",
-        detalhesErro: error.message,
+        detalhesErro: error?.message ?? error,
       });
 
       await osOmie.trocarEtapaOS(

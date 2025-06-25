@@ -112,7 +112,7 @@ const osService = {
         `Corpo da Resposta: ${JSON.stringify(error.response?.data)}`
       );
       // console.error(`Código do Erro: ${error.code}`);
-      throw error.response?.data;
+      // throw error.response?.data;
     }
   },
 
@@ -128,9 +128,8 @@ const osService = {
       const response = await apiOmie.post("servicos/os/", body);
       return response.data;
     } catch (error) {
-      logger.error(`Erro ao alterar OS ${os.nCodOS}: ${error.message}`);
-      console.error(`Erro ao alterar OS ${os.nCodOS}: ${error.message}`);
-      throw error;
+      console.log(`Erro ao alterar OS: ${error}`);
+      throw `Erro ao alterar Os ${error}`;
     }
   },
 

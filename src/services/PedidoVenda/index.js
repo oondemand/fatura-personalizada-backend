@@ -107,13 +107,13 @@ const gerar = async ({ gatilho, baseOmie, autor, nPedido }) => {
       status: "sucesso",
     });
   } catch (error) {
-    console.log(`❌ Erro ao processar pedido ${nPedido}`, error.message);
+    console.log(`❌ Erro ao processar pedido ${nPedido}`, error?.message);
 
     if (tracking) {
       await TrackingService.concluirRastreamento({
         id: tracking._id,
         status: "falha",
-        detalhesErro: error.message,
+        detalhesErro: error?.message ?? error,
       });
     }
 
