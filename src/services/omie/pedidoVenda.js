@@ -18,7 +18,7 @@ exports.PedidoVendaOmie = {
     }
   },
 
-  trocarEtapaPedidoVenda: async ({ baseOmie, nPedido, etapa, observacao }) => {
+  trocarEtapaPedidoVenda: async ({ baseOmie, idPedido, etapa, observacao }) => {
     try {
       const body = {
         call: "AlterarPedidoVenda",
@@ -27,7 +27,7 @@ exports.PedidoVendaOmie = {
         param: [
           {
             Cabecalho: {
-              numero_pedido: nPedido,
+              codigo_pedido: idPedido,
               etapa: etapa,
             },
             Observacoes: {

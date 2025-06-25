@@ -13,7 +13,7 @@ const anexoService = require("../omie/anexoService");
 const EmailSender = require("../../utils/emailSender");
 const { getTemplates } = require("../Template");
 
-const gerar = async ({ gatilho, baseOmie, autor, nPedido }) => {
+const gerar = async ({ gatilho, baseOmie, autor, nPedido, idPedido }) => {
   let tracking;
   const tenant = baseOmie.tenant;
 
@@ -119,7 +119,7 @@ const gerar = async ({ gatilho, baseOmie, autor, nPedido }) => {
 
     await PedidoVendaOmie.trocarEtapaPedidoVenda({
       baseOmie,
-      nPedido: nPedido,
+      idPedido,
       etapa: gatilho.etapaErro,
       observacao: `${error.message}`,
     });

@@ -41,6 +41,7 @@ exports.pedidoVenda = async (req, res) => {
       baseOmie,
       autor: author,
       nPedido: event.numeroPedido,
+      idPedido: event.idPedido,
     });
     return res
       .status(200)
