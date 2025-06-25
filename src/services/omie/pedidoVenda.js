@@ -54,8 +54,6 @@ exports.PedidoVendaOmie = {
         param: [pedido],
       };
 
-      console.log("--- Alterando pedido:", JSON.stringify(body, null, 2));
-
       const response = await apiOmie.post("produtos/pedido/", body);
       return response.data;
     } catch (error) {
@@ -65,11 +63,6 @@ exports.PedidoVendaOmie = {
   },
 
   montarPedidoVendaAlterado: async ({ pedido, etapa, observacao }) => {
-    console.log(
-      "--- Montando pedido alterado",
-      JSON.stringify(pedido, null, 2)
-    );
-
     const pedidoAlterado = {
       Cabecalho: {
         codigo_pedido: pedido.pedido_venda_produto?.cabecalho?.codigo_pedido,
