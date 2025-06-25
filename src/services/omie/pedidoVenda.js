@@ -54,6 +54,8 @@ exports.PedidoVendaOmie = {
         param: [pedido],
       };
 
+      console.log("--- Alterando pedido:", body);
+
       const response = await apiOmie.post("produtos/pedido/", body);
       return response.data;
     } catch (error) {
