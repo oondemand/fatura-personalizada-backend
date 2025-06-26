@@ -6,7 +6,7 @@ exports.caracteristicas = async (req, res) => {
     const caracteristicas = await Tracking.aggregate([
       {
         $match: {
-          tenant: new mongoose.Types.ObjectId(req.tenant),
+          tenant: new mongoose.Types.ObjectId("6777d887c0cda53e93c74907"),
         },
       },
       {
@@ -31,31 +31,10 @@ exports.caracteristicas = async (req, res) => {
               $group: {
                 _id: "$_id.kanban",
                 total: { $sum: "$quantidade" },
-                sucesso: {
-                  $sum: {
-                    $cond: [
-                      { $eq: ["$_id.status", "sucesso"] },
-                      "$quantidade",
-                      0,
-                    ],
-                  },
-                },
-                falha: {
-                  $sum: {
-                    $cond: [
-                      { $eq: ["$_id.status", "falha"] },
-                      "$quantidade",
-                      0,
-                    ],
-                  },
-                },
-                processando: {
-                  $sum: {
-                    $cond: [
-                      { $eq: ["$_id.status", "processando"] },
-                      "$quantidade",
-                      0,
-                    ],
+                porStatus: {
+                  $push: {
+                    status: "$_id.status",
+                    quantidade: "$quantidade",
                   },
                 },
               },
@@ -65,9 +44,7 @@ exports.caracteristicas = async (req, res) => {
                 _id: 0,
                 kanban: "$_id",
                 total: 1,
-                sucesso: 1,
-                falha: 1,
-                processando: 1,
+                porStatus: 1,
               },
             },
           ],
