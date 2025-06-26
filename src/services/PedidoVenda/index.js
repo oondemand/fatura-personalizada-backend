@@ -36,6 +36,11 @@ const gerar = async ({ gatilho, baseOmie, autor, nPedido, idPedido }) => {
       gatilho,
     });
 
+    await TrackingService.atualizarRastreamento({
+      id: tracking._id,
+      variaveisOmieCarregadas: false,
+    });
+
     const { pedido, cliente } = await getVariaveisOmie({
       baseOmie,
       nPedido: nPedido,
