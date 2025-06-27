@@ -135,24 +135,23 @@ const listarCategoriasOmie = async (req, res) => {
 
 const listarEtapasOmie = async (req, res) => {
   try {
-    const baseOmie = await BaseOmie.findOne({
-      _id: req.params.baseOmieId,
+    const bases = await BaseOmie.find({
       tenant: req.tenant,
     });
 
-    const data = await etapasService.listarEtapasFaturamento({ baseOmie });
+    let cadastros = [];
 
-    const etapasVendaServico = data?.cadastros?.find(
-      (e) => e.cCodOperacao == "01" && e.cDescOperacao == "Venda de Serviço"
-    );
+    for (const base of bases) {
+      const data = await etapasService.listarEtapasFaturamento({
+        baseOmie: base,
+      });
 
-    const etapasAtivas = etapasVendaServico?.etapas.filter(
-      (e) => e.cInativo !== "S"
-    );
+      cadastros = [...cadastros, ...(data?.cadastros || [])];
+    }
 
-    return res.status(200).json(etapasAtivas);
+    return res.status(200).json(cadastros.filter((e) => "etapas" in e));
   } catch (error) {
-    console.error("Erro ao listar categorias:", error.message);
+    console.log("Erro ao listar categorias:", error);
     res.status(500).json({ error: error.message });
   }
 };
