@@ -5,5 +5,6 @@ const { pedidoVenda } = require("../controllers/webhook/pedidoVenda");
 
 router.post("/ordem-servico/:id", ordemServico);
 router.post("/pedido-venda/:id", pedidoVenda);
+router.post("/crm/:id", crm);
 
 module.exports = router;

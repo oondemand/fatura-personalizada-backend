@@ -109,7 +109,7 @@ exports.listarVariaveisOmie = async (req, res) => {
       });
     }
 
-    if (gatilho?.kanbanOmie === "OrdemServiço") {
+    if (gatilho?.kanbanOmie === "OrdemServico") {
       data = await OrdemServicoService.getVariaveisOmiePorNumero(
         authOmie,
         numero

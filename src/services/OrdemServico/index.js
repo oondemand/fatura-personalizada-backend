@@ -26,7 +26,7 @@ const ordemServicoService = {
 
     const tracking = await trackingService.iniciarRastreamento({
       tenant,
-      kanban: "OrdemServiço",
+      kanban: "OrdemServico",
       template: gatilho.templateDocumento,
       emailUsuarioOmie: authOmie.email,
     });

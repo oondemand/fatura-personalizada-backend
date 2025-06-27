@@ -5,7 +5,7 @@ const GatilhosSchema = new Schema(
   {
     kanbanOmie: {
       type: String,
-      enum: ["OrdemServiço", "PedidoVenda"],
+      enum: ["OrdemServico", "PedidoVenda", "CRM"],
       required: true,
     },
     baseOmie: {
