@@ -3,35 +3,45 @@ const BaseOmie = require("../../models/baseOmie");
 
 exports.crm = async (req, res) => {
   try {
-    console.log("REQ.BODY", req.body);
-    // const gatilho = await Gatilho.findById(req.params.id);
+    const gatilho = await Gatilho.findById(req.params.id);
 
-    // if (!gatilho)
-    //   return res.status(404).json({ error: "Gatilho não encontrado" });
+    if (!gatilho)
+      return res.status(404).json({ error: "Gatilho não encontrado" });
 
-    // if (req.body.ping === "omie")
-    //   return res.status(200).json({ message: "pong" });
+    if (req.body.ping === "omie")
+      return res.status(200).json({ message: "pong" });
 
     console.log("------------------------------------");
     console.log(`🔄 Recebendo webhook CRM`);
+    console.log("REQ.BODY", req.body);
 
-    // const { appKey, event, topic, author } = req.body;
+    const { appKey, event, topic, author } = req.body;
 
-    // if (topic !== "VendaProduto.EtapaAlterada")
-    //   return res.status(200).json({ message: "Tópico ignorado." });
+    if (topic !== "CRM.Oportunidade.Alterado")
+      return res.status(200).json({ message: "Tópico ignorado." });
 
-    // if (!event.idPedido || !appKey)
-    //   return res.status(400).json({
-    //     error: "Faltam parâmetros: idPedido ou appKey.",
-    //   });
+    if (!event.nCodOp || !appKey)
+      return res.status(400).json({
+        error: "Faltam parâmetros: nCodOp ou appKey.",
+      });
 
-    // const baseOmie = await BaseOmie.findOne({
-    //   appKey,
-    //   tenant: gatilho?.tenant,
-    // });
+    const baseOmie = await BaseOmie.findOne({
+      appKey,
+      tenant: gatilho?.tenant,
+    });
 
-    // if (!baseOmie)
-    //   return res.status(404).json({ error: "Base Omie não encontrada" });
+    if (!baseOmie)
+      return res.status(404).json({ error: "Base Omie não encontrada" });
+
+    // {
+    //   "identificacao": {
+    //     "nCodOp": 4909737656,
+    //     "cCodIntOp": ""
+    //   },
+    //   "fasesStatus": {
+    //     "nCodFase": 4809215422
+    //   }
+    // }
 
     // if (gatilho.etapaGeracao !== event.etapa)
     //   return res.status(200).json({ message: "Etapa ignorada." });

@@ -1,7 +1,8 @@
 const Configuracao = require("../models/configuracao");
 const BaseOmie = require("../models/baseOmie");
 const categoriasService = require("../services/omie/categoriasService");
-const etapasService = require("../services/omie/etapasService");
+const EtapasService = require("../services/omie/etapasService");
+const FasesService = require("../services/omie/fasesService");
 
 // Criar uma nova configuração
 const criarConfiguracao = async (req, res) => {
@@ -139,17 +140,38 @@ const listarEtapasOmie = async (req, res) => {
       tenant: req.tenant,
     });
 
-    let cadastros = [];
+    // No kanban CRM etapas são chamadas de fases e tem um corpo diferente 😄
+    // Dispara as promessas ao mesmo tempo
+    // ------------------------------------------------------------------------
+    const [results, resultsFases] = await Promise.all([
+      Promise.all(
+        bases.map((base) =>
+          EtapasService.listarEtapasFaturamento({ baseOmie: base })
+        )
+      ),
+      Promise.all(
+        bases.map((base) => FasesService.listarFases({ baseOmie: base }))
+      ),
+    ]);
 
-    for (const base of bases) {
-      const data = await etapasService.listarEtapasFaturamento({
-        baseOmie: base,
-      });
+    const conjuntoEtapasOmie = results.flatMap((data) => data?.cadastros || []);
+    const conjuntoFasesOmie = resultsFases.flatMap(
+      (data) => data?.cadastros || []
+    );
 
-      cadastros = [...cadastros, ...(data?.cadastros || [])];
-    }
+    const etapas = EtapasService.agruparEtapasFormatadasPorKanban({
+      etapas: conjuntoEtapasOmie.filter((e) => "etapas" in e),
+    });
 
-    return res.status(200).json(cadastros.filter((e) => "etapas" in e));
+    const fases = FasesService.formatarFasesOmie({ fases: conjuntoFasesOmie });
+
+    /** RESPONSE =>
+     *  {CRM: [{descricao: "Etapa 1", codigo: "1"}, ...]}
+     *  {PedidoVenda: [{descricao: "Etapa 1", codigo: "1"}, ...]}
+     *  {OrdemServico: [{descricao: "Etapa 1", codigo: "1"}, ...]}
+     */
+
+    return res.status(200).json(Object.assign({}, ...[fases, ...etapas]));
   } catch (error) {
     console.log("Erro ao listar categorias:", error);
     res.status(500).json({ error: error.message });
