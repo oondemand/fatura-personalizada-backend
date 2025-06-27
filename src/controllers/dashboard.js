@@ -6,7 +6,7 @@ exports.caracteristicas = async (req, res) => {
     const caracteristicas = await Tracking.aggregate([
       {
         $match: {
-          tenant: new mongoose.Types.ObjectId("6777d887c0cda53e93c74907"),
+          tenant: new mongoose.Types.ObjectId(req.tenant),
         },
       },
       {
