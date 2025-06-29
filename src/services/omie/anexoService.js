@@ -7,6 +7,13 @@ const { apiOmie } = require("../../config/apiOmie");
 const logger = require("../../config/logger");
 const sleep = promisify(setTimeout);
 
+// [C-TABELA]
+//'cliente', 'produto', 'servico', 'pedido-venda', 'remessa-produto',
+//'ordem-servico', 'contrato-servico', 'pedido-compra', 'nota-entrada',
+//'ordem-producao', 'conta-pagar', 'conta-receber', 'conta-corrente',
+//'conta-corrente-lancamento', 'crm-contas', 'crm-contatos',
+// 'crm-oportunidades', 'com-recebimento'.
+
 const anexoService = {
   incluirAnexoInvoiceOS: async (omieAuth, os, arquivo) => {
     try {
@@ -42,6 +49,24 @@ const anexoService = {
         baseOmie,
         "pedido-venda",
         pedido.pedido_venda_produto.cabecalho.codigo_pedido,
+        nomeArquivo,
+        "pdf",
+        arquivo
+      );
+    } catch (error) {
+      console.log("Erro ao incluir anexo no pedido de venda", error);
+    }
+  },
+
+  incluirAnexoCrmOportunidades: async ({ baseOmie, oportunidade, arquivo }) => {
+    try {
+      const dataAtual = format(new Date(), "yyyy-MM-dd_HHmm");
+      const nomeArquivo = `invoice-${oportunidade.identificacao.nCodOp}_${dataAtual}.pdf`;
+
+      return await anexoService.incluirAnexo(
+        baseOmie,
+        "crm-oportunidades",
+        oportunidade.identificacao.nCodOp,
         nomeArquivo,
         "pdf",
         arquivo

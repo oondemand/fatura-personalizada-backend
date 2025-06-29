@@ -1,5 +1,6 @@
 const Gatilho = require("../../models/gatilho");
 const BaseOmie = require("../../models/baseOmie");
+const CRMService = require("../../services/CRM");
 
 exports.crm = async (req, res) => {
   try {
@@ -13,7 +14,6 @@ exports.crm = async (req, res) => {
 
     console.log("------------------------------------");
     console.log(`🔄 Recebendo webhook CRM`);
-    console.log("REQ.BODY", req.body);
 
     const { appKey, event, topic, author } = req.body;
 
@@ -33,26 +33,15 @@ exports.crm = async (req, res) => {
     if (!baseOmie)
       return res.status(404).json({ error: "Base Omie não encontrada" });
 
-    // {
-    //   "identificacao": {
-    //     "nCodOp": 4909737656,
-    //     "cCodIntOp": ""
-    //   },
-    //   "fasesStatus": {
-    //     "nCodFase": 4809215422
-    //   }
-    // }
+    if (gatilho.etapaGeracao !== event.nCodFase?.toString())
+      return res.status(200).json({ message: "Etapa ignorada." });
 
-    // if (gatilho.etapaGeracao !== event.etapa)
-    //   return res.status(200).json({ message: "Etapa ignorada." });
-
-    // PedidoVendaService.gerar({
-    //   gatilho,
-    //   baseOmie,
-    //   autor: author,
-    //   nPedido: event.numeroPedido,
-    //   idPedido: event.idPedido,
-    // });
+    CRMService.gerar({
+      gatilho,
+      baseOmie,
+      autor: author,
+      nCodOp: event.nCodOp,
+    });
     return res
       .status(200)
       .json({ message: "Webhook recebido. Fatura sendo gerada." });

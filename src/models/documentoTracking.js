@@ -13,7 +13,7 @@ const DocumentoTrackingSchema = new mongoose.Schema(
     },
     kanban: {
       type: String,
-      enum: ["OrdemServico", "PedidoVenda"],
+      enum: ["OrdemServico", "PedidoVenda", "CRM"],
       required: true,
     },
     template: {

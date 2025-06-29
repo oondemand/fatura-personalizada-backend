@@ -151,38 +151,6 @@ const ordemServicoService = {
     }
   },
 
-  // getTemplates: async (appKey, tenant, gatilho) => {
-  //   try {
-  //     const fatura = await Template.findOne({
-  //       _id: gatilho.templateDocumento,
-  //       tenant,
-  //     });
-
-  //     const emailAssunto = await Template.findOne({
-  //       _id: gatilho.templateAssuntoEmail,
-  //       tenant,
-  //     });
-
-  //     const emailCorpo = await Template.findOne({
-  //       _id: gatilho.templateCorpoEmail,
-  //       tenant,
-  //     });
-
-  //     if (!fatura || !emailAssunto || !emailCorpo) {
-  //       throw new Error("Um ou mais templates não foram encontrados.");
-  //     }
-
-  //     return {
-  //       fatura: fatura.templateEjs,
-  //       emailAssunto: emailAssunto.templateEjs,
-  //       emailCorpo: emailCorpo.templateEjs,
-  //     };
-  //   } catch (error) {
-  //     console.error("Erro ao carregar templates:", error.message);
-  //     throw error;
-  //   }
-  // },
-
   getVariaveisOmie: async (authOmie, nCodOS) => {
     const os = await osOmie.consultarOS(authOmie, nCodOS);
     const cliente = await clienteService.consultarCliente(
