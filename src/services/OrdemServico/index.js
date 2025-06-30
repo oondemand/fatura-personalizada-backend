@@ -1,259 +1,87 @@
-const ejs = require("ejs");
-
-const { getConfig } = require("../../utils/config");
-const { generatePDF } = require("../../utils/pdfGenerator");
-const { sendEmail } = require("../../utils/emailSender");
-
 const osOmie = require("../omie/osService");
-const clienteService = require("../omie/clienteService");
 const anexoService = require("../omie/anexoService");
-const paisesService = require("../omie/paisesService");
 
 const BaseOmie = require("../../models/baseOmie");
 const Include = require("../../models/include");
-const Template = require("../../models/template");
-const ContaCorrenteService = require("../omie/contaCorrenteService");
-const trackingService = require("../Tracking");
+const Tracking = require("../Tracking/tracking");
 const { listarMoedasComCotacao } = require("../Moeda");
 const { getConfiguracoes } = require("../Configuracao");
-const { getTemplates } = require("../Template");
+const { generateEmailAndPdf } = require("../Template");
+const { processarOS } = require("./processarOs");
+const { enviarEmail } = require("./enviarEmail");
+const { getVariaveisOmie } = require("./getVariaveis");
 
-const ordemServicoService = {
-  gerar: async (authOmie, nCodOS, tenant, gatilho) => {
-    const chalk = await import("chalk").then((mod) => mod.default);
-    console.log("");
-    console.log(chalk.green("Gerando fatura para OS"), nCodOS);
-
-    const tracking = await trackingService.iniciarRastreamento({
-      tenant,
-      kanban: "OrdemServico",
-      template: gatilho.templateDocumento,
-      emailUsuarioOmie: authOmie.email,
-    });
-
-    try {
-      const [baseOmie, includes, moedas] = await Promise.all([
-        BaseOmie.findOne({ appKey: authOmie.appKey, tenant }),
-        Include.find({ tenant }),
-        listarMoedasComCotacao({ tenant }),
-      ]);
-
-      const configuracoes = await getConfiguracoes({ baseOmie, tenant });
-
-      const { fatura, emailAssunto, emailCorpo } = await getTemplates({
-        tenant,
-        gatilho,
-      });
-
-      const { os, cliente } = await ordemServicoService.getVariaveisOmie(
-        authOmie,
-        nCodOS
-      );
-
-      await trackingService.atualizarRastreamento({
-        id: tracking._id,
-        variaveisOmieCarregadas: true,
-      });
-
-      const variaveisTemplates = {
-        baseOmie,
-        includes,
-        cliente,
-        os,
-        moedas,
-        configuracoes,
-      };
-
-      const renderedAssunto = ejs.render(emailAssunto, variaveisTemplates);
-      const renderedCorpo = ejs.render(emailCorpo, variaveisTemplates);
-
-      const pdfBuffer = await ordemServicoService.gerarPDFInvoice(
-        fatura,
-        variaveisTemplates
-      );
-
-      await trackingService.atualizarRastreamento({
-        id: tracking._id,
-        documentoGerado: true,
-      });
-
-      await anexoService.incluirAnexoInvoiceOS(authOmie, os, pdfBuffer);
-
-      await trackingService.atualizarRastreamento({
-        id: tracking._id,
-        documentoAnexadoOmie: true,
-      });
-
-      let observacao;
-
-      if (!gatilho.enviarEmail) console.log("Envio de email desativado");
-      if (gatilho.enviarEmail) {
-        const emailTo = await ordemServicoService.enviarEmail(
-          authOmie,
-          os,
-          cliente,
-          renderedAssunto,
-          renderedCorpo,
-          tenant,
-          gatilho
-        );
-
-        await trackingService.atualizarRastreamento({
-          id: tracking._id,
-          emailEnviado: true,
-          emailsDestinatarios: emailTo,
-        });
-
-        observacao = `Invoice enviada para ${emailTo} as ${new Date().toLocaleString()}`;
-      }
-
-      await ordemServicoService.processarOS(
-        authOmie,
-        nCodOS,
-        observacao,
-        tenant,
-        gatilho,
-        os
-      );
-
-      if (gatilho.adiantamento) {
-        await trackingService.atualizarRastreamento({
-          id: tracking._id,
-          adiantamentoGerado: gatilho.adiantamento,
-        });
-      }
-
-      await trackingService.concluirRastreamento({
-        id: tracking._id,
-        status: "sucesso",
-      });
-
-      console.log(JSON.stringify(os.Cabecalho));
-      console.log(chalk.green(`OS ${os.Cabecalho.cNumOS} processada!`));
-    } catch (error) {
-      console.log(chalk.red(`Erro processamento OS ${nCodOS}`));
-      console.error(error);
-
-      await trackingService.concluirRastreamento({
-        id: tracking._id,
-        status: "falha",
-        detalhesErro: error?.message ?? error,
-      });
-
-      await osOmie.trocarEtapaOS(
-        authOmie,
-        nCodOS,
-        gatilho.etapaErro,
-        `${error}`
-      );
-
-      console.log(`OS ${nCodOS} movida para a etapa de erro`);
-    }
-  },
-
-  getVariaveisOmie: async (authOmie, nCodOS) => {
-    const os = await osOmie.consultarOS(authOmie, nCodOS);
-    const cliente = await clienteService.consultarCliente(
-      authOmie,
-      os.Cabecalho.nCodCli
-    );
-    const paises = await paisesService.consultarPais(
-      authOmie,
-      cliente.codigo_pais
-    );
-    cliente.pais = paises.lista_paises[0].cDescricao;
-
-    return { os, cliente };
-  },
-
-  getVariaveisOmiePorNumero: async (authOmie, numeroOS) => {
-    const os = await osOmie.consultarOsPorNumero(authOmie, numeroOS);
-    const cliente = await clienteService.consultarCliente(
-      authOmie,
-      os.Cabecalho.nCodCli
-    );
-    const paises = await paisesService.consultarPais(
-      authOmie,
-      cliente.codigo_pais
-    );
-    cliente.pais = paises.lista_paises[0].cDescricao;
-
-    return { os, cliente };
-  },
-
-  processarOS: async (authOmie, nCodOS, observacao, tenant, gatilho, os) => {
-    console.log("Processando OS", nCodOS);
-
-    const etapaProcessado = gatilho.etapaProcessado;
-    const gerarAdiantamento = gatilho.adiantamento;
-
-    const ccAdiamentoCliente =
-      await ContaCorrenteService.obterContaAdiamentoCliente({
-        omieAuth: authOmie,
-        tenant,
-      });
-
-    const novaOs = await osOmie.montarOsAlterada(
-      authOmie,
-      nCodOS,
-      etapaProcessado,
-      gerarAdiantamento,
-      os.InformacoesAdicionais.cCodCateg,
-      ccAdiamentoCliente,
-      observacao
-    );
-
-    await osOmie.alterarOS(authOmie, novaOs);
-  },
-
-  enviarEmail: async (
-    authOmie,
-    os,
-    cliente,
-    renderedAssunto,
-    renderedCorpo,
+const gerar = async (baseOmie, nCodOS, tenant, gatilho) => {
+  const tracking = await Tracking({
     tenant,
-    gatilho
-  ) => {
-    if (!gatilho.enviarEmail) {
-      console.log("Envio de email desativado");
-      return;
-    }
+    kanban: "OrdemServico",
+    template: gatilho.templateDocumento,
+    emailUsuarioOmie: baseOmie.email,
+  });
 
-    console.log("Enviando email");
+  try {
+    const [includes, moedas] = await Promise.all([
+      Include.find({ tenant }),
+      listarMoedasComCotacao({ tenant }),
+    ]);
 
-    const emailFrom = {
-      email: await getConfig("email-from", authOmie.appKey, tenant),
-      nome: await getConfig("email-from-nome", authOmie.appKey, tenant),
+    const configuracoes = await getConfiguracoes({ baseOmie, tenant });
+
+    await tracking.carregarVariaveisOmie.iniciar();
+    const { os, cliente } = await getVariaveisOmie(baseOmie, nCodOS);
+    await tracking.carregarVariaveisOmie.finalizar();
+
+    const variaveisDoTemplate = {
+      baseOmie,
+      includes,
+      cliente,
+      os,
+      moedas,
+      configuracoes,
     };
 
-    const emailCopia = await getConfig("email-copia", authOmie.appKey, tenant);
+    await tracking.gerarDocumento.iniciar();
+    const { assunto, corpo, pdf } = await generateEmailAndPdf({
+      gatilho,
+      tenant,
+      variaveisDoTemplate,
+    });
+    await tracking.gerarDocumento.finalizar();
 
-    const emails = [
-      cliente?.email,
-      emailCopia,
-      ...(os?.Email?.cEnviarPara?.split(",") || []),
-    ];
+    await tracking.anexarDocumentoOmie.iniciar();
+    await anexoService.incluirAnexoInvoiceOS(baseOmie, os, pdf);
+    await tracking.anexarDocumentoOmie.finalizar();
 
-    const anexos = await anexoService.listarAnexoBuffer(
-      authOmie,
-      os.Cabecalho.nCodOS
-    );
+    let observacao;
 
-    if (!emails?.length > 0) throw new Error("Email não informado");
+    if (!gatilho.enviarEmail) console.log("Envio de email desativado");
+    if (gatilho.enviarEmail) {
+      await tracking.enviarEmail.iniciar();
+      const emailTo = await enviarEmail(
+        baseOmie,
+        os,
+        cliente,
+        assunto,
+        corpo,
+        tenant,
+        gatilho
+      );
+      await tracking.enviarEmail.finalizar();
 
-    console.log(`Destinatários: ${emails}`);
-    await sendEmail(emailFrom, emails, renderedAssunto, renderedCorpo, anexos);
+      observacao = `Invoice enviada para ${emailTo} as ${new Date().toLocaleString()}`;
+    }
 
-    return emails.join(", ");
-  },
+    await processarOS(baseOmie, nCodOS, observacao, tenant, gatilho, os);
+    if (gatilho.adiantamento) await tracking.gerarAdiantamento.finalizar();
 
-  gerarPDFInvoice: async (template, variaveis) => {
-    console.log("Gerando PDF Invoice");
+    await tracking.finalizarRastreamentoComSucesso();
+  } catch (error) {
+    await tracking.finalizarRastreamentoComFalha({
+      detalhesErro: error?.message ?? error,
+    });
 
-    const renderedHtml = ejs.render(template, variaveis);
-    return await generatePDF(renderedHtml);
-  },
+    await osOmie.trocarEtapaOS(baseOmie, nCodOS, gatilho.etapaErro, `${error}`);
+  }
 };
 
-module.exports = ordemServicoService;
+module.exports = { gerar };

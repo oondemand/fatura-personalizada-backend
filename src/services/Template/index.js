@@ -1,4 +1,6 @@
 const Template = require("../../models/template");
+const ejs = require("ejs");
+const { generatePDF } = require("../../utils/pdfGenerator");
 
 const getTemplates = async ({ tenant, gatilho }) => {
   const { templateDocumento, templateAssuntoEmail, templateCorpoEmail } =
@@ -28,6 +30,30 @@ const getTemplates = async ({ tenant, gatilho }) => {
   }
 };
 
+const generateEmailAndPdf = async ({
+  tenant,
+  gatilho,
+  variaveisDoTemplate,
+}) => {
+  const { fatura, emailAssunto, emailCorpo } = await getTemplates({
+    tenant,
+    gatilho,
+  });
+
+  const assunto = ejs.render(emailAssunto, variaveisDoTemplate);
+  const corpo = ejs.render(emailCorpo, variaveisDoTemplate);
+  const documento = ejs.render(fatura, variaveisDoTemplate);
+  const pdf = await generatePDF(documento);
+
+  return {
+    assunto,
+    documento,
+    corpo,
+    pdf,
+  };
+};
+
 module.exports = {
   getTemplates,
+  generateEmailAndPdf,
 };

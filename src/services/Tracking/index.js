@@ -49,7 +49,7 @@ async function concluirRastreamento({ id, status, detalhesErro, ...rest }) {
   tracking.status = status;
   tracking.dataConclusao = dataConclusao;
   tracking.tempoProcessamento = tempoProcessamento;
-  tracking.processamentoConcluido = status === "sucesso" ? true : false;
+  if (status === "sucesso") tracking.processamentoConcluido = true;
   if (detalhesErro) tracking.detalhesErro = detalhesErro;
 
   return await tracking.save();

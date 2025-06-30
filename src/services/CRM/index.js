@@ -1,50 +1,39 @@
-const TrackingService = require("../Tracking/index");
 const Include = require("../../models/include");
 const { getConfiguracoes } = require("../Configuracao");
 const { listarMoedasComCotacao } = require("../Moeda");
 const { CRMOmie } = require("../omie/crmService");
-const { generatePDF } = require("../../utils/pdfGenerator");
-const ejs = require("ejs");
 const anexoService = require("../omie/anexoService");
-const { getTemplates } = require("../Template");
 const { processarOportunidade } = require("./processarOportunidade");
 const { enviarEmail } = require("./enviarEmail");
 const { getVariaveisOmie } = require("./getVariaveis");
+const Tracking = require("../Tracking/tracking");
+const { generateEmailAndPdf } = require("../Template");
 
 const gerar = async ({ gatilho, baseOmie, autor, nCodOp }) => {
-  let tracking;
   const tenant = baseOmie.tenant;
+  const tracking = await Tracking({
+    tenant,
+    kanban: "CRM",
+    template: gatilho.templateDocumento,
+    emailUsuarioOmie: autor?.email,
+  });
 
   try {
-    tracking = await TrackingService.iniciarRastreamento({
-      tenant,
-      kanban: "CRM",
-      template: gatilho.templateDocumento,
-      emailUsuarioOmie: autor?.email,
-    });
-
     const [includes, moedas] = await Promise.all([
       Include.find({ tenant }),
       listarMoedasComCotacao({ tenant }),
     ]);
 
     const configuracoes = await getConfiguracoes({ baseOmie, tenant });
-    const { fatura, emailAssunto, emailCorpo } = await getTemplates({
-      tenant,
-      gatilho,
-    });
 
+    await tracking.carregarVariaveisOmie.iniciar();
     const { oportunidade, conta, contato } = await getVariaveisOmie({
       baseOmie,
       nCodOp,
     });
+    await tracking.carregarVariaveisOmie.finalizar();
 
-    await TrackingService.atualizarRastreamento({
-      id: tracking._id,
-      variaveisOmieCarregadas: true,
-    });
-
-    const variaveisTemplates = {
+    const variaveisDoTemplate = {
       baseOmie,
       includes,
       oportunidade,
@@ -54,45 +43,35 @@ const gerar = async ({ gatilho, baseOmie, autor, nCodOp }) => {
       configuracoes,
     };
 
-    const renderedAssunto = ejs.render(emailAssunto, variaveisTemplates);
-    const renderedCorpo = ejs.render(emailCorpo, variaveisTemplates);
-    const renderedHtml = ejs.render(fatura, variaveisTemplates);
-
-    const pdf = await generatePDF(renderedHtml);
-
-    await TrackingService.atualizarRastreamento({
-      id: tracking._id,
-      documentoGerado: true,
+    await tracking.gerarDocumento.iniciar();
+    const { assunto, corpo, pdf } = await generateEmailAndPdf({
+      gatilho,
+      tenant,
+      variaveisDoTemplate,
     });
+    await tracking.gerarDocumento.finalizar();
 
+    await tracking.anexarDocumentoOmie.iniciar();
     await anexoService.incluirAnexoCrmOportunidades({
       baseOmie,
       oportunidade,
       arquivo: pdf,
     });
-
-    await TrackingService.atualizarRastreamento({
-      id: tracking._id,
-      documentoAnexadoOmie: true,
-    });
+    await tracking.anexarDocumentoOmie.finalizar();
 
     let observacao;
     if (!gatilho.enviarEmail) console.log("Envio de email desativado");
+
     if (gatilho.enviarEmail) {
+      await tracking.enviarEmail.iniciar();
       const emails = await enviarEmail({
         baseOmie,
         tenant,
-        assunto: renderedAssunto,
-        corpo: renderedCorpo,
+        assunto,
+        corpo,
         anexo: pdf,
       });
-
-      await TrackingService.atualizarRastreamento({
-        id: tracking._id,
-        emailEnviado: true,
-        emailsDestinatarios: emails,
-      });
-
+      await tracking.enviarEmail.finalizar({ emailsDestinatarios: emails });
       observacao = `Invoice enviada para ${emails} as ${new Date().toLocaleString()}`;
     }
 
@@ -103,17 +82,10 @@ const gerar = async ({ gatilho, baseOmie, autor, nCodOp }) => {
       observacao,
     });
 
-    await TrackingService.concluirRastreamento({
-      id: tracking._id,
-      status: "sucesso",
-    });
+    await tracking.finalizarRastreamentoComSucesso();
   } catch (error) {
-    console.log(`❌ Erro ao gerar CRM: ${error.message ?? error}`);
-
     if (tracking) {
-      await TrackingService.concluirRastreamento({
-        id: tracking._id,
-        status: "falha",
+      await tracking.finalizarRastreamentoComFalha({
         detalhesErro: error?.message ?? error,
       });
     }
