@@ -17,6 +17,38 @@ exports.CRMOmie = {
     }
   },
 
+  consultarConta: async ({ baseOmie, nCod }) => {
+    const body = {
+      call: "ConsultarConta",
+      app_key: baseOmie.appKey,
+      app_secret: baseOmie.appSecret,
+      param: [{ nCod }],
+    };
+    try {
+      const response = await apiOmie.post("crm/contas/", body);
+      return response.data;
+    } catch (error) {
+      console.log(`Erro ao consultar conta: ${error}`);
+      throw error;
+    }
+  },
+
+  consultarContato: async ({ baseOmie, nCod }) => {
+    const body = {
+      call: "ConsultarContato",
+      app_key: baseOmie.appKey,
+      app_secret: baseOmie.appSecret,
+      param: [{ nCod, cCodInt: "" }],
+    };
+    try {
+      const response = await apiOmie.post("crm/contatos/", body);
+      return response.data;
+    } catch (error) {
+      console.log(`Erro ao consultar contato: ${error}`);
+      throw error;
+    }
+  },
+
   trocarEtapaOportunidade: async ({ baseOmie, nCodOp, etapa, observacao }) => {
     try {
       const body = {

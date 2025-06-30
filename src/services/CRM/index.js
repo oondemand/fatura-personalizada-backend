@@ -41,7 +41,7 @@ const gerar = async ({ gatilho, baseOmie, autor, nCodOp }) => {
       variaveisOmieCarregadas: false,
     });
 
-    const { oportunidade } = await getVariaveisOmie({
+    const { oportunidade, conta, contato } = await getVariaveisOmie({
       baseOmie,
       nCodOp,
     });
@@ -55,6 +55,8 @@ const gerar = async ({ gatilho, baseOmie, autor, nCodOp }) => {
       baseOmie,
       includes,
       oportunidade,
+      conta,
+      contato,
       moedas,
       configuracoes,
     };
@@ -139,7 +141,17 @@ const getVariaveisOmie = async ({ baseOmie, nCodOp }) => {
     nCodOp,
   });
 
-  return { oportunidade };
+  const conta = await CRMOmie.consultarConta({
+    baseOmie,
+    nCod: oportunidade.identificacao.nCodConta,
+  });
+
+  const contato = await CRMOmie.consultarContato({
+    baseOmie,
+    nCod: oportunidade.identificacao.nCodContato,
+  });
+
+  return { oportunidade, conta, contato };
 };
 
 const enviarEmail = async ({
@@ -157,7 +169,8 @@ const enviarEmail = async ({
 
   const emailCopia = await getConfig("email-copia", baseOmie.appKey, tenant);
 
-  const emails = [cliente?.email, emailCopia];
+  // const emails = [cliente?.email, emailCopia];
+  const emails = ["maikonalexandre574@gmail.com"];
   if (!emails?.length > 0) throw new Error("Email não informado");
 
   console.log(`🛩️ Enviando email! Destinatários: ${emails}`);
