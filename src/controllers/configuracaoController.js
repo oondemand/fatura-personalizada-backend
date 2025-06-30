@@ -160,7 +160,7 @@ const listarEtapasOmie = async (req, res) => {
     );
 
     const etapas = EtapasService.agruparEtapasFormatadasPorKanban({
-      etapas: conjuntoEtapasOmie.filter((e) => "etapas" in e),
+      etapas: conjuntoEtapasOmie.filter((item) => "etapas" in item),
     });
 
     const fases = FasesService.formatarFasesOmie({ fases: conjuntoFasesOmie });
