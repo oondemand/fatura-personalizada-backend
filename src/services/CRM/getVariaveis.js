@@ -16,7 +16,11 @@ const getVariaveisOmie = async ({ baseOmie, nCodOp }) => {
     nCod: oportunidade.identificacao.nCodContato,
   });
 
-  return { oportunidade, conta, contato };
+  const solucoes = await CRMOmie.listarSolucoes({
+    baseOmie,
+  });
+
+  return { oportunidade, conta, contato, solucoes };
 };
 
 module.exports = {

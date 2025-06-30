@@ -27,7 +27,7 @@ const gerar = async ({ gatilho, baseOmie, autor, nCodOp }) => {
     const configuracoes = await getConfiguracoes({ baseOmie, tenant });
 
     await tracking.carregarVariaveisOmie.iniciar();
-    const { oportunidade, conta, contato } = await getVariaveisOmie({
+    const { oportunidade, conta, contato, solucoes } = await getVariaveisOmie({
       baseOmie,
       nCodOp,
     });
@@ -41,6 +41,7 @@ const gerar = async ({ gatilho, baseOmie, autor, nCodOp }) => {
       contato,
       moedas,
       configuracoes,
+      solucoes,
     };
 
     await tracking.gerarDocumento.iniciar();
