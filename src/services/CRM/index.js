@@ -4,7 +4,6 @@ const { getConfiguracoes } = require("../Configuracao");
 const { listarMoedasComCotacao } = require("../Moeda");
 const { CRMOmie } = require("../omie/crmService");
 const Template = require("../../models/template");
-const clienteService = require("../omie/clienteService");
 const paisesService = require("../omie/paisesService");
 const { generatePDF } = require("../../utils/pdfGenerator");
 const ejs = require("ejs");
@@ -89,7 +88,6 @@ const gerar = async ({ gatilho, baseOmie, autor, nCodOp }) => {
       const emails = await enviarEmail({
         baseOmie,
         tenant,
-        cliente,
         assunto: renderedAssunto,
         corpo: renderedCorpo,
         anexo: pdf,
@@ -154,14 +152,7 @@ const getVariaveisOmie = async ({ baseOmie, nCodOp }) => {
   return { oportunidade, conta, contato };
 };
 
-const enviarEmail = async ({
-  baseOmie,
-  tenant,
-  cliente,
-  anexo,
-  assunto,
-  corpo,
-}) => {
+const enviarEmail = async ({ baseOmie, tenant, anexo, assunto, corpo }) => {
   const emailFrom = {
     email: await getConfig("email-from", baseOmie.appKey, tenant),
     nome: await getConfig("email-from-nome", baseOmie.appKey, tenant),
@@ -169,7 +160,7 @@ const enviarEmail = async ({
 
   const emailCopia = await getConfig("email-copia", baseOmie.appKey, tenant);
 
-  // const emails = [cliente?.email, emailCopia];
+  // const emails = [emailCopia];
   const emails = ["maikonalexandre574@gmail.com"];
   if (!emails?.length > 0) throw new Error("Email não informado");
 
