@@ -7,6 +7,7 @@ const getConfiguracoes = async ({ baseOmie, tenant }) => {
       { baseOmie: null, tenant },
     ],
   });
+
   return configuracoes;
 };
 

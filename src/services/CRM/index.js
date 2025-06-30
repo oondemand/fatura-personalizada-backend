@@ -160,8 +160,7 @@ const enviarEmail = async ({ baseOmie, tenant, anexo, assunto, corpo }) => {
 
   const emailCopia = await getConfig("email-copia", baseOmie.appKey, tenant);
 
-  // const emails = [emailCopia];
-  const emails = ["maikonalexandre574@gmail.com"];
+  const emails = [emailCopia];
   if (!emails?.length > 0) throw new Error("Email não informado");
 
   console.log(`🛩️ Enviando email! Destinatários: ${emails}`);
