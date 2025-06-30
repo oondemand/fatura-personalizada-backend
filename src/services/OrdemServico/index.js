@@ -1,7 +1,5 @@
 const osOmie = require("../omie/osService");
 const anexoService = require("../omie/anexoService");
-
-const BaseOmie = require("../../models/baseOmie");
 const Include = require("../../models/include");
 const Tracking = require("../Tracking/tracking");
 const { listarMoedasComCotacao } = require("../Moeda");
@@ -57,18 +55,21 @@ const gerar = async (baseOmie, nCodOS, tenant, gatilho) => {
     if (!gatilho.enviarEmail) console.log("Envio de email desativado");
     if (gatilho.enviarEmail) {
       await tracking.enviarEmail.iniciar();
-      const emailTo = await enviarEmail(
+      const emails = await enviarEmail({
         baseOmie,
         os,
         cliente,
         assunto,
         corpo,
         tenant,
-        gatilho
-      );
-      await tracking.enviarEmail.finalizar();
+        gatilho,
+        anexo: pdf,
+      });
+      await tracking.enviarEmail.finalizar({
+        emailsDestinatarios: emails,
+      });
 
-      observacao = `Invoice enviada para ${emailTo} as ${new Date().toLocaleString()}`;
+      observacao = `Invoice enviada para ${emails} as ${new Date().toLocaleString()}`;
     }
 
     await processarOS(baseOmie, nCodOS, observacao, tenant, gatilho, os);

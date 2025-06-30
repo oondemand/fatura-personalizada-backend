@@ -3,20 +3,13 @@ const EmailSender = require("../../utils/emailSender");
 
 const enviarEmail = async ({
   baseOmie,
-  os,
+  tenant,
+  pedido,
   cliente,
+  anexo,
   assunto,
   corpo,
-  tenant,
-  gatilho,
-  anexo,
 }) => {
-  if (!gatilho.enviarEmail) {
-    console.log("Envio de email desativado");
-    return;
-  }
-  console.log("Enviando email");
-
   const emailFrom = {
     email: await getConfig("email-from", baseOmie.appKey, tenant),
     nome: await getConfig("email-from-nome", baseOmie.appKey, tenant),
@@ -27,7 +20,7 @@ const enviarEmail = async ({
   const emails = [
     cliente?.email,
     emailCopia,
-    ...(os?.Email?.cEnviarPara?.split(",") || []),
+    ...(pedido?.informacoes_adicionais?.utilizar_emails?.split(",") || []),
   ];
 
   if (!emails?.length > 0) throw new Error("Email não informado");

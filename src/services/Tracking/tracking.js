@@ -94,13 +94,13 @@ const TrackingService = async ({ tenant, kanban, ...rest }) => {
     iniciar: () => {
       return atualizarRastreamento({
         id: tracking._id,
-        adiantamentoGerado: true,
+        adiantamentoGerado: false,
       });
     },
     finalizar: () => {
       return atualizarRastreamento({
         id: tracking._id,
-        adiantamentoGerado: false,
+        adiantamentoGerado: true,
       });
     },
   };
