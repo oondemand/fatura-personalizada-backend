@@ -1,7 +1,8 @@
 const Configuracao = require("../models/configuracao");
 const BaseOmie = require("../models/baseOmie");
 const categoriasService = require("../services/omie/categoriasService");
-const etapasService = require("../services/omie/etapasService");
+const EtapasService = require("../services/omie/etapasService");
+const FasesService = require("../services/omie/fasesService");
 
 // Criar uma nova configuração
 const criarConfiguracao = async (req, res) => {
@@ -135,24 +136,44 @@ const listarCategoriasOmie = async (req, res) => {
 
 const listarEtapasOmie = async (req, res) => {
   try {
-    const baseOmie = await BaseOmie.findOne({
-      _id: req.params.baseOmieId,
+    const bases = await BaseOmie.find({
       tenant: req.tenant,
     });
 
-    const data = await etapasService.listarEtapasFaturamento({ baseOmie });
+    // No kanban CRM etapas são chamadas de fases e tem um corpo diferente 😄
+    // Dispara as promessas ao mesmo tempo
+    // ------------------------------------------------------------------------
+    const [results, resultsFases] = await Promise.all([
+      Promise.all(
+        bases.map((base) =>
+          EtapasService.listarEtapasFaturamento({ baseOmie: base })
+        )
+      ),
+      Promise.all(
+        bases.map((base) => FasesService.listarFases({ baseOmie: base }))
+      ),
+    ]);
 
-    const etapasVendaServico = data?.cadastros?.find(
-      (e) => e.cCodOperacao == "01" && e.cDescOperacao == "Venda de Serviço"
+    const conjuntoEtapasOmie = results.flatMap((data) => data?.cadastros || []);
+    const conjuntoFasesOmie = resultsFases.flatMap(
+      (data) => data?.cadastros || []
     );
 
-    const etapasAtivas = etapasVendaServico?.etapas.filter(
-      (e) => e.cInativo !== "S"
-    );
+    const etapas = EtapasService.agruparEtapasFormatadasPorKanban({
+      etapas: conjuntoEtapasOmie.filter((item) => "etapas" in item),
+    });
 
-    return res.status(200).json(etapasAtivas);
+    const fases = FasesService.formatarFasesOmie({ fases: conjuntoFasesOmie });
+
+    /** RESPONSE =>
+     *  {CRM: [{descricao: "Etapa 1", codigo: "1"}, ...]}
+     *  {PedidoVenda: [{descricao: "Etapa 1", codigo: "1"}, ...]}
+     *  {OrdemServico: [{descricao: "Etapa 1", codigo: "1"}, ...]}
+     */
+
+    return res.status(200).json(Object.assign({}, ...[fases, ...etapas]));
   } catch (error) {
-    console.error("Erro ao listar categorias:", error.message);
+    console.log("Erro ao listar categorias:", error);
     res.status(500).json({ error: error.message });
   }
 };

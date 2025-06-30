@@ -14,10 +14,7 @@ router.get(
   configuracaoController.listarCategoriasOmie
 );
 
-router.get(
-  "/listar-etapas-omie/:baseOmieId",
-  configuracaoController.listarEtapasOmie
-);
+router.get("/listar-etapas-omie", configuracaoController.listarEtapasOmie);
 
 router.get("/:id", configuracaoController.obterConfiguracaoPorId);
 router.put("/:id", configuracaoController.atualizarConfiguracao);

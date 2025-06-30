@@ -92,11 +92,11 @@ exports.loginUsuario = async (req, res) => {
 
 exports.listarUsuarios = async (req, res) => {
   const filter =
-    req.usuario.tipo === "master" && !req.tenant
+    req.usuario.tipo === "admin" && !req.tenant
       ? {}
       : {
           "tenants.tenant": { $in: [req.tenant] },
-          tipo: { $in: ["padrao", "admin"] },
+          tipo: { $in: ["usuario", "admin-tenant"] },
         };
 
   try {
@@ -110,7 +110,7 @@ exports.listarUsuarios = async (req, res) => {
 
 exports.obterUsuario = async (req, res) => {
   const filter =
-    req.usuario.tipo === "master" && !req.tenant
+    req.usuario.tipo === "admin" && !req.tenant
       ? {}
       : { "tenants.tenant": { $in: [req.tenant] } };
 
@@ -130,7 +130,7 @@ exports.obterUsuario = async (req, res) => {
 
 exports.atualizarUsuario = async (req, res) => {
   const filter =
-    req.usuario.tipo === "master" && !req.tenant
+    req.usuario.tipo === "admin" && !req.tenant
       ? {}
       : { "tenants.tenant": { $in: [req.tenant] } };
 
@@ -163,12 +163,12 @@ exports.atualizarUsuario = async (req, res) => {
 
 exports.excluirUsuario = async (req, res) => {
   const filter =
-    req.usuario.tipo === "master" && !req.tenant
+    req.usuario.tipo === "admin" && !req.tenant
       ? {}
       : { "tenants.tenant": { $in: [req.tenant] } };
 
   try {
-    if (req.usuario.tipo === "master" && !req.tenant) {
+    if (req.usuario.tipo === "admin" && !req.tenant) {
       await Usuario.findOneAndDelete({
         ...filter,
         _id: req.params.id,
@@ -199,8 +199,6 @@ exports.enviarConvite = async (req, res) => {
     const { email } = req.body;
     const usuario = await Usuario.findOne({ email });
 
-    console.log(usuario);
-
     if (!usuario) {
       const usuario = new Usuario({
         nome: email,
@@ -219,7 +217,7 @@ exports.enviarConvite = async (req, res) => {
         nome: usuario.nome,
         url:
           process.env.FATURA_PERSONALIZADA_CLIENT +
-          "/primeiro-acesso?code=" +
+          "primeiro-acesso?code=" +
           token,
       });
 

@@ -34,9 +34,8 @@ app.use("/webhooks", require("./routers/webhookRouter"));
 
 // **Middleware de autenticação** - Aplica-se apenas às rotas que necessitam de proteção
 app.use(require("./middlewares/authMiddleware"));
-
 // **Middleware de rastreabilidade** - Aplica-se para todas rotas protegidas
-app.use(require("./middlewares/rastreabilidadeMiddleware"));
+app.use(require("./middlewares/logMiddleware"));
 
 // ** Rotas protegidas ** - Requerem autenticação
 app.use("/usuarios", require("./routers/usuarioRouter"));
@@ -45,11 +44,13 @@ app.use("/configuracoes", require("./routers/configuracaoRouter"));
 app.use("/moedas", require("./routers/moedaRouter"));
 app.use("/templates", require("./routers/templateRouter"));
 app.use("/includes", require("./routers/includeRouter"));
-app.use("/logs", require("./routers/logRouter"));
+app.use("/rastreabilidade", require("./routers/rastreabilidadeRouter"));
 app.use("/tenants", require("./routers/tenantRouter"));
 app.use("/fatura", require("./routers/faturaRouter"));
 app.use("/assistentes", require("./routers/assistenteRouter"));
 app.use("/prompt", require("./routers/promptRouter"));
+app.use("/gatilhos", require("./routers/gatilhoRouter"));
+app.use("/caracteristicas", require("./routers/dashboardRouter"));
 
 // Middleware de erro
 app.use((err, req, res, next) => {

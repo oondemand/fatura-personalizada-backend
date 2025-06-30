@@ -1,22 +1,39 @@
-const Log = require('../models/log');
+const Log = require("../models/log");
+const { sendPaginatedResponse } = require("../utils/helpers");
 
-class DashboardController {
-  static async getRastreabilidadeLogs(req, res) {
+class LogController {
+  static async getLogs(req, res) {
     try {
-      const { page = 1, limit = 10 } = req.query;
-      const logs = await Log.find({tenant: req.tenant})
-        .skip((page - 1) * limit)
-        .limit(parseInt(limit))
-        .sort({ createdAt: -1 }) // Ordena por mais recente
-        .populate('usuario', 'id nome'); // Popula com o id e nome do usuário
+      const { sortBy, pageIndex, pageSize, searchTerm, tipo, ...rest } =
+        req.query;
 
-      const totalLogs = await Log.countDocuments();
+      const page = parseInt(pageIndex) || 0;
+      const limite = parseInt(pageSize) || 10;
+      const skip = page * limite;
 
-      res.status(200).json({
-        totalLogs,
-        totalPages: Math.ceil(totalLogs / limit),
-        currentPage: parseInt(page),
-        logs
+      const queryResult = {
+        tenant: req.tenant,
+      };
+
+      const [logs, totalDeLogs] = await Promise.all([
+        Log.find(queryResult)
+          .skip(skip)
+          .limit(limite)
+          .populate("usuario", "id nome")
+          .sort({ createdAt: -1 }),
+        Log.countDocuments(queryResult),
+      ]);
+
+      sendPaginatedResponse({
+        res,
+        statusCode: 200,
+        results: logs,
+        pagination: {
+          currentPage: parseInt(page),
+          itemsPerPage: parseInt(limite),
+          totalItems: totalDeLogs,
+          totalPages: Math.ceil(totalDeLogs / limite),
+        },
       });
     } catch (error) {
       console.error("Erro ao buscar logs de rastreabilidade:", error);
@@ -26,8 +43,10 @@ class DashboardController {
 
   static async limparLogs(req, res) {
     try {
-      await Log.deleteMany({tenant: req.tenant});
-      res.status(200).json({ message: "Logs de rastreabilidade apagados com sucesso" });
+      await Log.deleteMany({ tenant: req.tenant });
+      res
+        .status(200)
+        .json({ message: "Logs de rastreabilidade apagados com sucesso" });
     } catch (error) {
       console.error("Erro ao apagar logs de rastreabilidade:", error);
       res.status(500).json({ error: "Erro ao apagar logs de rastreabilidade" });
@@ -35,4 +54,4 @@ class DashboardController {
   }
 }
 
-module.exports = DashboardController;
+module.exports = LogController;

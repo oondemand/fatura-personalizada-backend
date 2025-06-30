@@ -17,9 +17,9 @@ exports.createTenant = async (req, res) => {
 
     await newTenant.save();
 
-    const masterUsers = await Usuario.find({ tipo: "master" });
+    const adminUsers = await Usuario.find({ tipo: "admin" });
 
-    for (const usuario of masterUsers) {
+    for (const usuario of adminUsers) {
       usuario.tenants = [...usuario.tenants, { tenant: newTenant._id }];
       await usuario.save();
     }
