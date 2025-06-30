@@ -3,14 +3,13 @@ const Include = require("../../models/include");
 const { getConfiguracoes } = require("../Configuracao");
 const { listarMoedasComCotacao } = require("../Moeda");
 const { CRMOmie } = require("../omie/crmService");
-const Template = require("../../models/template");
-const paisesService = require("../omie/paisesService");
 const { generatePDF } = require("../../utils/pdfGenerator");
 const ejs = require("ejs");
-const { getConfig } = require("../../utils/config");
 const anexoService = require("../omie/anexoService");
-const EmailSender = require("../../utils/emailSender");
 const { getTemplates } = require("../Template");
+const { processarOportunidade } = require("./processarOportunidade");
+const { enviarEmail } = require("./enviarEmail");
+const { getVariaveisOmie } = require("./getVariaveis");
 
 const gerar = async ({ gatilho, baseOmie, autor, nCodOp }) => {
   let tracking;
@@ -33,11 +32,6 @@ const gerar = async ({ gatilho, baseOmie, autor, nCodOp }) => {
     const { fatura, emailAssunto, emailCorpo } = await getTemplates({
       tenant,
       gatilho,
-    });
-
-    await TrackingService.atualizarRastreamento({
-      id: tracking._id,
-      variaveisOmieCarregadas: false,
     });
 
     const { oportunidade, conta, contato } = await getVariaveisOmie({
@@ -131,65 +125,6 @@ const gerar = async ({ gatilho, baseOmie, autor, nCodOp }) => {
       observacao: `${error?.message ?? error}`,
     });
   }
-};
-
-const getVariaveisOmie = async ({ baseOmie, nCodOp }) => {
-  const oportunidade = await CRMOmie.consultarOportunidade({
-    baseOmie,
-    nCodOp,
-  });
-
-  const conta = await CRMOmie.consultarConta({
-    baseOmie,
-    nCod: oportunidade.identificacao.nCodConta,
-  });
-
-  const contato = await CRMOmie.consultarContato({
-    baseOmie,
-    nCod: oportunidade.identificacao.nCodContato,
-  });
-
-  return { oportunidade, conta, contato };
-};
-
-const enviarEmail = async ({ baseOmie, tenant, anexo, assunto, corpo }) => {
-  const emailFrom = {
-    email: await getConfig("email-from", baseOmie.appKey, tenant),
-    nome: await getConfig("email-from-nome", baseOmie.appKey, tenant),
-  };
-
-  const emailCopia = await getConfig("email-copia", baseOmie.appKey, tenant);
-
-  const emails = [emailCopia];
-  if (!emails?.length > 0) throw new Error("Email não informado");
-
-  console.log(`🛩️ Enviando email! Destinatários: ${emails}`);
-
-  const anexos = [{ filename: "invoice.pdf", fileBuffer: Buffer.from(anexo) }];
-  await EmailSender.sendEmail(emailFrom, emails, assunto, corpo, anexos);
-
-  return emails.join(", ");
-};
-
-const processarOportunidade = async ({
-  baseOmie,
-  gatilho,
-  oportunidade,
-  observacao,
-}) => {
-  console.log("🔄 Processando oportunidade");
-  const etapaProcessado = gatilho.etapaProcessado;
-
-  const oportunidadeAlterada = await CRMOmie.montarOportunidadeAlterado({
-    etapa: etapaProcessado,
-    observacao,
-    oportunidade,
-  });
-
-  await CRMOmie.alterarOportunidade({
-    baseOmie,
-    oportunidade: oportunidadeAlterada,
-  });
 };
 
 module.exports = {
