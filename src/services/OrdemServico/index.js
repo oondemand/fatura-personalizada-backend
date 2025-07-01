@@ -23,9 +23,8 @@ const gerar = async (baseOmie, nCodOS, tenant, gatilho) => {
       listarMoedasComCotacao({ tenant }),
     ]);
 
-    const configuracoes = await getConfiguracoes({ baseOmie, tenant });
-
     await tracking.carregarVariaveisOmie.iniciar();
+    const configuracoes = await getConfiguracoes({ baseOmie, tenant });
     const { os, cliente } = await getVariaveisOmie(baseOmie, nCodOS);
     await tracking.carregarVariaveisOmie.finalizar();
 
