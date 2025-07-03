@@ -1,5 +1,6 @@
 const { getConfig } = require("../../utils/config");
 const EmailSender = require("../../utils/emailSender");
+const anexoService = require("../../services/omie/anexoService");
 
 const enviarEmail = async ({
   baseOmie,
@@ -34,7 +35,11 @@ const enviarEmail = async ({
 
   console.log(`🛩️ Enviando email! Destinatários: ${emails}`);
 
-  const anexos = [{ filename: "invoice.pdf", fileBuffer: Buffer.from(anexo) }];
+  const anexos = await anexoService.listarAnexoBuffer(
+    baseOmie,
+    os.Cabecalho.nCodOS
+  );
+
   await EmailSender.sendEmail(emailFrom, emails, assunto, corpo, anexos);
 
   return emails.join(", ");

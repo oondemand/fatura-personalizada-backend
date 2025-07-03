@@ -33,19 +33,16 @@ exports.ordemServico = async (req, res) => {
     const baseOmie = await BaseOmie.findOne({
       appKey: appKey,
       tenant: gatilho.tenant,
-    });
+    }).lean();
 
     if (!baseOmie)
       return res.status(404).send({ error: "AppKey não encontrada" });
 
-    const authOmie = {
-      appKey: appKey,
-      appSecret: baseOmie.appSecret,
-      email: author.email,
-    };
-
     ordemServicoService.gerar(
-      authOmie,
+      {
+        ...baseOmie,
+        cnpj: baseOmie.cnpj,
+      },
       event.idOrdemServico,
       gatilho.tenant,
       gatilho

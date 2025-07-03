@@ -49,6 +49,22 @@ exports.CRMOmie = {
     }
   },
 
+  listarSolucoes: async ({ baseOmie }) => {
+    const body = {
+      call: "ListarSolucoes",
+      app_key: baseOmie.appKey,
+      app_secret: baseOmie.appSecret,
+      param: [{ pagina: 1, registros_por_pagina: 1000 }],
+    };
+    try {
+      const response = await apiOmie.post("crm/solucoes/", body);
+      return response.data;
+    } catch (error) {
+      console.log(`Erro ao listar soluções: ${error}`);
+      throw error;
+    }
+  },
+
   trocarEtapaOportunidade: async ({ baseOmie, nCodOp, etapa, observacao }) => {
     try {
       const body = {

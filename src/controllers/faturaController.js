@@ -4,7 +4,8 @@ const Include = require("../models/include");
 const Gatilho = require("../models/gatilho");
 const Configuracao = require("../models/configuracao");
 
-const OrdemServicoService = require("../services/OrdemServico");
+const OrdemServico = require("../services/OrdemServico/getVariaveis");
+const CRM = require("../services/CRM/getVariaveis");
 
 const { generatePDF } = require("../utils/pdfGenerator");
 const { getConfig } = require("../utils/config");
@@ -110,14 +111,19 @@ exports.listarVariaveisOmie = async (req, res) => {
     }
 
     if (gatilho?.kanbanOmie === "OrdemServico") {
-      data = await OrdemServicoService.getVariaveisOmiePorNumero(
-        authOmie,
-        numero
-      );
+      data = await OrdemServico.getVariaveisOmiePorNumero(authOmie, numero);
+    }
+
+    if (gatilho?.kanbanOmie === "CRM") {
+      data = await CRM.getVariaveisOmie({
+        baseOmie: authOmie,
+        nCodOp: numero,
+      });
     }
 
     return res.status(200).json({ data });
   } catch (error) {
+    console.log(error);
     return res
       .status(500)
       .json({ message: error?.response?.data?.faultstring });
@@ -205,7 +211,7 @@ exports.enviarFatura = async (req, res) => {
 
     res.status(200).json({ message: "Ok" });
   } catch (error) {
-    console.error("Erro:", error);
+    console.log("Erro:", error);
     res.status(500).json({ error });
   }
 };
